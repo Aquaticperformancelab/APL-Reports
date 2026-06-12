@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="APL Obs W2">
+<meta name="theme-color" content="#111">
+<title>APL Observasi — Week 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f2f2f7;
+  --card: #fff;
+  --border: #e5e5ea;
+  --text: #1c1c1e;
+  --text2: #8e8e93;
+  --text3: #aeaeb2;
+  --r: 14px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000;
+    --card: #1c1c1e;
+    --border: #38383a;
+    --text: #f2f2f7;
+    --text2: #8e8e93;
+    --text3: #636366;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { padding: env(safe-area-inset-top, 0) 0 0 0; }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; font-size: inherit; }
+input, textarea { font-family: inherit; color: var(--text); }
+
+.screen { display: none; min-height: 100vh; min-height: 100dvh; padding: 16px 16px calc(16px + var(--safe-b)); max-width: 480px; margin: 0 auto; }
+.screen.active { display: block; }
+
+/* ===== HOME ===== */
+.home-top { margin-bottom: 16px; padding: 4px 2px; }
+.home-brand { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); }
+.home-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; margin-top: 2px; }
+
+.progress-card { background: var(--card); border-radius: var(--r); padding: 14px 16px; margin-bottom: 14px; }
+.progress-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2); margin-bottom: 8px; }
+.progress-row { display: flex; align-items: center; gap: 12px; }
+.progress-bar { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7F77DD, #378ADD); transition: width 0.4s ease; }
+.progress-num { font-size: 15px; font-weight: 700; min-width: 36px; text-align: right; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+
+.tile {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 14px 14px 12px;
+  position: relative;
+  text-align: left;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 2px solid transparent;
+  transition: transform 0.1s, border-color 0.2s;
+  overflow: hidden;
+  width: 100%;
+}
+
+.tile:active { transform: scale(0.96); }
+.tile.done { border-color: var(--ac); }
+
+.tile-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--ac); opacity: 0.8; }
+
+.tile-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 20px; font-weight: 800;
+  letter-spacing: -0.02em; color: var(--ac); margin-top: 4px;
+}
+
+.tile-status { display: flex; align-items: center; gap: 5px; margin-top: 10px; }
+.dot-row { display: flex; gap: 4px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+.dot.on { background: var(--ac); }
+.tile-pct { font-size: 11px; color: var(--text3); font-weight: 600; margin-left: 2px; }
+
+.tile-check {
+  position: absolute; top: 12px; right: 12px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--ac); color: #fff;
+  display: none; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+}
+.tile.done .tile-check { display: flex; }
+
+.bottom-bar { display: flex; gap: 10px; }
+
+.btn-primary {
+  flex: 1; background: var(--text); color: var(--bg);
+  padding: 15px; border-radius: var(--r);
+  font-size: 15px; font-weight: 700; text-align: center;
+}
+.btn-primary:active { opacity: 0.7; }
+
+.btn-secondary {
+  width: 52px; background: var(--card); border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--text2);
+}
+.btn-secondary:active { background: var(--border); }
+
+/* ===== DETAIL ===== */
+.detail-nav {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 6px; position: sticky; top: 0;
+  background: var(--bg); padding: 8px 0 10px; z-index: 10;
+}
+
+.nav-back {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--text2);
+}
+.nav-back:active { background: var(--border); }
+
+.nav-name {
+  flex: 1;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 26px; font-weight: 800;
+  letter-spacing: -0.03em; color: var(--ac); text-align: center;
+}
+
+.nav-arrows { display: flex; gap: 4px; }
+
+.nav-arrow {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--text2);
+}
+.nav-arrow:active { background: var(--border); }
+.nav-arrow.disabled { opacity: 0.3; pointer-events: none; }
+
+.stripe { height: 3px; border-radius: 2px; background: var(--ac); opacity: 0.3; margin-bottom: 16px; }
+
+.card { background: var(--card); border-radius: var(--r); padding: 16px; margin-bottom: 10px; }
+.card.highlight { border: 2px solid var(--ac); }
+
+.card-label { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 2px; }
+.card-sub { font-size: 12px; color: var(--text2); line-height: 1.4; margin-bottom: 14px; }
+
+.scale { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+.sbtn {
+  background: var(--bg); border: 2px solid transparent;
+  border-radius: 12px; padding: 16px 6px;
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  text-align: center; line-height: 1.25; min-height: 64px;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.08s, background 0.15s, border-color 0.15s, color 0.15s;
+}
+.sbtn:active { transform: scale(0.94); }
+
+.sbtn.sel-red { background: #FCEBEB; border-color: #E07070; color: #8C1F1F; }
+.sbtn.sel-yel { background: #FFF5DC; border-color: #E0A840; color: #6D4209; }
+.sbtn.sel-grn { background: #E8F5DB; border-color: #5DA626; color: #2D5808; }
+
+@media (prefers-color-scheme: dark) {
+  .sbtn.sel-red { background: #3A1818; border-color: #CC5555; color: #FF9999; }
+  .sbtn.sel-yel { background: #3A2E10; border-color: #CC9933; color: #FFD080; }
+  .sbtn.sel-grn { background: #1A3010; border-color: #5DA626; color: #A0DD66; }
+}
+
+.big-input {
+  width: 100%;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 36px; font-weight: 800; text-align: center;
+  border: none; background: var(--bg); border-radius: 12px;
+  padding: 14px; color: var(--ac); letter-spacing: -0.02em; outline: none;
+}
+.big-input::placeholder { color: var(--text3); }
+.big-input:focus { box-shadow: inset 0 0 0 2px var(--ac); }
+
+.notes-area {
+  width: 100%; min-height: 72px; font-size: 14px;
+  border: none; background: var(--bg); border-radius: 12px;
+  padding: 12px; resize: vertical; outline: none; line-height: 1.5;
+}
+.notes-area:focus { box-shadow: inset 0 0 0 2px var(--border); }
+
+.spacer { height: 20px; }
+
+.toast {
+  position: fixed; bottom: calc(24px + var(--safe-b)); left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: var(--bg);
+  padding: 12px 20px; border-radius: 16px;
+  font-size: 14px; font-weight: 600; z-index: 200;
+  opacity: 0; transition: transform 0.25s, opacity 0.25s;
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.c-avissa  { --ac: #7F77DD; }
+.c-tata    { --ac: #1D9E75; }
+.c-reva    { --ac: #D85A30; }
+.c-joshua  { --ac: #378ADD; }
+.c-tasha   { --ac: #D4537E; }
+.c-saniya  { --ac: #BA7517; }
+.c-dora    { --ac: #639922; }
+.c-rendra  { --ac: #534AB7; }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="scr-home">
+  <div class="home-top">
+    <div class="home-brand">APL Sprint Lab</div>
+    <div class="home-title">Observasi Week 2</div>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-label">Progress</div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="pbar"></div></div>
+      <div class="progress-num" id="pnum">0/8</div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="bottom-bar">
+    <button class="btn-primary" onclick="doExport()">Salin Data untuk Laporan</button>
+    <button class="btn-secondary" onclick="doReset()">🗑</button>
+  </div>
+</div>
+
+<div class="screen" id="scr-detail"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const A = ['Avissa','Tata','Reva','Joshua','Tasha','Saniya','Dora','Rendra'];
+const CLS = {Avissa:'c-avissa',Tata:'c-tata',Reva:'c-reva',Joshua:'c-joshua',Tasha:'c-tasha',Saniya:'c-saniya',Dora:'c-dora',Rendra:'c-rendra'};
+
+const QS = [
+  {k:'effort', l:'Kualitas effort Rep 1', s:'Apakah Rep 1 benar-benar max effort?',
+   o:[['Sub-max','red'],['Ragu-ragu','yel'],['Max effort','grn']]},
+  {k:'rep2mech', l:'Mekanisme Rep 2 (−2 strokes)', s:'Stroke lebih panjang karena catch aktif atau glide pasif?',
+   o:[['Glide pasif','red'],['Campuran','yel'],['Catch aktif','grn']]},
+  {k:'rep3collapse', l:'Stabilitas Rep 3 (+2 strokes)', s:'Kapan teknik mulai collapse saat turnover lebih cepat?',
+   o:[['Collapse awal','red'],['Pertengahan','yel'],['Terjaga penuh','grn']]},
+  {k:'b2consistency', l:'Konsistensi Blok 2', s:'Stroke count optimal direplikasi di 4 rep reinforcement?',
+   o:[['Fluktuasi','red'],['±1-2 strokes','yel'],['Konsisten','grn']]}
+];
+
+const QX = {k:'saniya_freeze', l:'Decision burden (Saniya)', s:'Apakah framing "pilih yang terbaik" membekukan output di Rep 4?',
+  o:[['Ya, freeze','red'],['Ragu-ragu','yel'],['Tidak, eksekusi','grn']]};
+
+const SK = 'apl_obs_w2_v2';
+let S, cur;
+
+function init() {
+  try { const r = localStorage.getItem(SK); if (r) S = JSON.parse(r); } catch(e) {}
+  if (!S) S = fresh();
+  home();
+}
+
+function fresh() {
+  const o = {};
+  A.forEach(a => o[a] = {effort:null,rep2mech:null,rep3collapse:null,b2consistency:null,saniya_freeze:null,declared:'',notes:''});
+  return o;
+}
+
+function save() { try { localStorage.setItem(SK, JSON.stringify(S)); } catch(e) {} }
+
+function qs(a) { return a === 'Saniya' ? [...QS, QX] : QS; }
+function ans(a) { return qs(a).filter(q => S[a][q.k] != null).length; }
+function done(a) { return ans(a) === qs(a).length; }
+
+function home() {
+  cur = null;
+  show('scr-home');
+  const g = document.getElementById('grid');
+  g.innerHTML = A.map(a => {
+    const t = qs(a).length, n = ans(a), d = done(a);
+    const dots = Array.from({length:t},(_,i) => `<div class="dot ${i<n?'on':''}"></div>`).join('');
+    return `<button class="tile ${CLS[a]} ${d?'done':''}" onclick="detail('${a}')">
+      <div class="tile-bar"></div>
+      <div class="tile-name">${a}</div>
+      <div class="tile-status"><div class="dot-row">${dots}</div><span class="tile-pct">${n}/${t}</span></div>
+      <div class="tile-check">✓</div>
+    </button>`;
+  }).join('');
+
+  const c = A.filter(done).length;
+  document.getElementById('pnum').textContent = `${c}/8`;
+  document.getElementById('pbar').style.width = (c/8*100)+'%';
+}
+
+function detail(a) {
+  cur = a;
+  const idx = A.indexOf(a);
+  const prev = idx > 0 ? A[idx-1] : null;
+  const next = idx < A.length-1 ? A[idx+1] : null;
+  const d = S[a];
+  const q = qs(a);
+
+  const el = document.getElementById('scr-detail');
+  el.className = `screen ${CLS[a]}`;
+
+  el.innerHTML = `
+    <div class="detail-nav">
+      <button class="nav-back" onclick="home()">←</button>
+      <div class="nav-name">${a}</div>
+      <div class="nav-arrows">
+        <button class="nav-arrow ${prev?'':'disabled'}" onclick="${prev?`detail('${prev}')`:'void(0)'}">‹</button>
+        <button class="nav-arrow ${next?'':'disabled'}" onclick="${next?`detail('${next}')`:'void(0)'}">›</button>
+      </div>
+    </div>
+    <div class="stripe"></div>
+
+    <div class="card highlight">
+      <div class="card-label">Stroke count optimal</div>
+      <div class="card-sub">Angka yang dideklarasikan atlet setelah Blok 2</div>
+      <input type="number" inputmode="numeric" class="big-input" placeholder="—"
+        value="${d.declared||''}" oninput="setDec(this.value)">
+    </div>
+
+    ${q.map(qi => `
+      <div class="card">
+        <div class="card-label">${qi.l}</div>
+        <div class="card-sub">${qi.s}</div>
+        <div class="scale">
+          ${qi.o.map(([lbl,clr],i) => {
+            const v = i+1;
+            const sel = d[qi.k]===v;
+            return `<button class="sbtn ${sel?'sel-'+clr:''}" data-q="${qi.k}" data-v="${v}" data-c="${clr}"
+              onclick="setAns('${qi.k}',${v},'${clr}')">${lbl}</button>`;
+          }).join('')}
+        </div>
+      </div>
+    `).join('')}
+
+    <div class="card">
+      <div class="card-label">Catatan</div>
+      <div class="card-sub">Anomali, konteks, atau hal yang perlu masuk laporan</div>
+      <textarea class="notes-area" placeholder="Tulis catatan..." oninput="setNote(this.value)">${d.notes||''}</textarea>
+    </div>
+    <div class="spacer"></div>
+  `;
+
+  show('scr-detail');
+  window.scrollTo(0,0);
+}
+
+function setAns(k, v, c) {
+  if (!cur) return;
+  S[cur][k] = v;
+  save();
+  document.querySelectorAll(`[data-q="${k}"]`).forEach(b => {
+    b.className = 'sbtn';
+    if (parseInt(b.dataset.v) === v) b.classList.add('sel-'+c);
+  });
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function setDec(v) { if(cur){S[cur].declared=v;save();} }
+function setNote(v) { if(cur){S[cur].notes=v;save();} }
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function buildText() {
+  const L = {
+    effort:['Sub-max','Ragu-ragu','Max effort'],
+    rep2mech:['Glide pasif','Campuran','Catch aktif'],
+    rep3collapse:['Collapse awal','Pertengahan','Terjaga penuh'],
+    b2consistency:['Fluktuasi','±1-2 strokes','Konsisten'],
+    saniya_freeze:['Ya, freeze','Ragu-ragu','Tidak, eksekusi']
+  };
+  const N = {effort:'Effort Rep 1',rep2mech:'Mekanisme Rep 2',rep3collapse:'Stabilitas Rep 3',b2consistency:'Konsistensi Blok 2',saniya_freeze:'Decision burden'};
+
+  let t = 'APL OBSERVASI WEEK 2\n====================\n\n';
+  A.forEach(a => {
+    const d = S[a];
+    t += `## ${a}\n`;
+    if (d.declared) t += `Stroke count optimal: ${d.declared}\n`;
+    qs(a).forEach(q => { if(d[q.k]) t += `${N[q.k]}: ${L[q.k][d[q.k]-1]}\n`; });
+    if (d.notes&&d.notes.trim()) t += `Catatan: ${d.notes.trim()}\n`;
+    t += '\n';
+  });
+  return t;
+}
+
+function doExport() {
+  const text = buildText();
+  if (navigator.share) {
+    navigator.share({title:'APL Observasi Week 2', text}).catch(() => clip(text));
+  } else {
+    clip(text);
+  }
+}
+
+function clip(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    toast('Tersalin! Paste ke chat Claude');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Tersalin! Paste ke chat Claude');
+  });
+}
+
+function doReset() {
+  if (!confirm('Hapus semua data observasi Week 2?')) return;
+  localStorage.removeItem(SK);
+  S = fresh();
+  home();
+  toast('Data direset');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+init();
+</script>
+</body>
+</html>
