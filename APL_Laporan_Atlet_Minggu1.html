@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APL Sprint Lab — Laporan Atlet Minggu 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#13212e; --ink-soft:#445463; --ink-faint:#7c8a96;
+    --paper:#f3efe6; --card:#ffffff; --line:#e7e1d4;
+    --accent:#2d7dd2; --accent-dark:#154e87;
+    --utama:#d8431f; --utama-bg:#fbe7e0;
+    --sedang:#bd7a12; --sedang-bg:#f9efd6;
+    --baik:#138a6a; --baik-bg:#e0f2eb;
+    --display:"Bricolage Grotesque", Georgia, serif;
+    --body:"Plus Jakarta Sans", system-ui, sans-serif;
+    --shadow-sm:0 1px 2px rgba(19,33,46,.06), 0 2px 8px rgba(19,33,46,.05);
+    --shadow-md:0 4px 14px rgba(19,33,46,.08), 0 12px 30px rgba(19,33,46,.07);
+    --shadow-lg:0 10px 40px rgba(19,33,46,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body); color:var(--ink); background:var(--paper);
+    background-image:radial-gradient(rgba(19,33,46,.045) 1px, transparent 1px);
+    background-size:22px 22px;
+    line-height:1.6; -webkit-font-smoothing:antialiased; padding-bottom:64px;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:0 18px}
+  .brandbar{display:flex; align-items:center; gap:12px; padding:22px 0 8px}
+  .brandmark{width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,#14a38b,#0c5e7c); position:relative; flex:none; box-shadow:var(--shadow-sm)}
+  .brandmark::before,.brandmark::after{content:""; position:absolute; left:7px; right:7px; height:3px; border-radius:3px; background:rgba(255,255,255,.85)}
+  .brandmark::before{top:14px; box-shadow:0 7px 0 rgba(255,255,255,.55)}
+  .brandmark::after{top:24px; background:rgba(255,255,255,.4)}
+  .brand-txt b{font-family:var(--display); font-weight:800; font-size:15px; letter-spacing:.2px; display:block; line-height:1.1}
+  .brand-txt span{font-size:12px; color:var(--ink-faint); letter-spacing:.06em; text-transform:uppercase}
+
+  .hero-home{margin:14px 0 8px}
+  .kicker{display:inline-block; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#0c5e7c; background:#dff0ef; padding:5px 11px; border-radius:999px}
+  .hero-home h1{font-family:var(--display); font-weight:800; font-size:clamp(30px,7vw,46px); line-height:1.02; letter-spacing:-.02em; margin:14px 0 10px}
+  .hero-home p{color:var(--ink-soft); font-size:16px; max-width:60ch}
+  .note-strip{display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-left:4px solid #14a38b; border-radius:14px; padding:14px 16px; margin:22px 0 6px; box-shadow:var(--shadow-sm)}
+  .note-strip svg{flex:none; margin-top:2px}
+  .note-strip b{font-weight:600}
+  .note-strip p{font-size:14.5px; color:var(--ink-soft)}
+  .pick-label{font-family:var(--display); font-weight:700; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin:34px 0 14px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px}
+  .athlete-btn{position:relative; text-align:left; cursor:pointer; border:1px solid var(--line); background:var(--card); border-radius:18px; padding:18px 16px 16px; box-shadow:var(--shadow-sm); transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; overflow:hidden}
+  .athlete-btn:hover{transform:translateY(-4px); box-shadow:var(--shadow-md)}
+  .athlete-btn::after{content:""; position:absolute; inset:0 0 auto 0; height:5px; background:var(--ac)}
+  .av{width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:800; font-size:20px; color:#fff; background:linear-gradient(135deg, var(--ac), var(--acd)); box-shadow:var(--shadow-sm); margin-bottom:12px}
+  .athlete-btn h3{font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-.01em}
+  .athlete-btn .go{display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:600; color:var(--ink-faint); margin-top:4px}
+  .athlete-btn:hover .go{color:var(--ac)}
+
+  #detail{display:none}
+  .back{display:inline-flex; align-items:center; gap:7px; cursor:pointer; border:none; background:none; color:var(--ink-soft); font-family:var(--body); font-weight:600; font-size:14px; padding:18px 0 8px}
+  .back:hover{color:var(--accent)}
+  .hero{position:relative; border-radius:24px; overflow:hidden; padding:30px 26px; color:#fff; background:linear-gradient(135deg, var(--accent), var(--accent-dark)); box-shadow:var(--shadow-lg); margin-bottom:18px}
+  .hero::before{content:""; position:absolute; right:-60px; top:-60px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.12)}
+  .hero::after{content:""; position:absolute; right:30px; bottom:-90px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,.08)}
+  .hero-row{display:flex; align-items:center; gap:18px; position:relative; z-index:1}
+  .hero .av{width:64px; height:64px; font-size:26px; border-radius:18px; background:rgba(255,255,255,.18); margin:0; backdrop-filter:blur(2px)}
+  .hero h2{font-family:var(--display); font-weight:800; font-size:clamp(28px,7vw,40px); line-height:1; letter-spacing:-.02em}
+  .hero .sub{font-size:13px; opacity:.92; letter-spacing:.05em; text-transform:uppercase; margin-top:6px; font-weight:600}
+  .statuspill{display:inline-flex; align-items:center; gap:6px; margin-top:14px; position:relative; z-index:1; font-size:13px; font-weight:600; background:rgba(255,255,255,.2); padding:6px 13px; border-radius:999px}
+
+  .tabs{display:flex; gap:6px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:5px; margin-bottom:18px; box-shadow:var(--shadow-sm); position:sticky; top:8px; z-index:5; overflow-x:auto}
+  .tab{flex:1 0 auto; white-space:nowrap; border:none; background:none; cursor:pointer; font-family:var(--body); font-weight:600; font-size:13.5px; color:var(--ink-soft); padding:9px 12px; border-radius:10px; transition:.2s}
+  .tab.active{background:var(--accent); color:#fff; box-shadow:var(--shadow-sm)}
+
+  .panel{display:none; animation:fade .4s ease both}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px 20px; box-shadow:var(--shadow-sm); margin-bottom:14px}
+  .card h4{font-family:var(--display); font-weight:700; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:12px; display:flex; align-items:center; gap:8px}
+  .card p{font-size:15.5px; color:var(--ink-soft)}
+  .summary-card{border-left:4px solid var(--accent)}
+  .summary-card p{color:var(--ink); font-size:16px}
+
+  .chips{display:flex; flex-wrap:wrap; gap:9px}
+  .chip{display:inline-flex; align-items:center; gap:7px; background:var(--baik-bg); color:#0c5a45; font-size:13.5px; font-weight:600; padding:8px 13px; border-radius:11px}
+  .chip svg{flex:none}
+
+  .focus-item{margin-bottom:18px}
+  .focus-item:last-child{margin-bottom:0}
+  .focus-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .focus-head .name{font-weight:700; font-size:15.5px; font-family:var(--display); letter-spacing:-.01em}
+  .ptag{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:4px 9px; border-radius:7px; white-space:nowrap}
+  .ptag.utama{background:var(--utama-bg); color:var(--utama)}
+  .ptag.sedang{background:var(--sedang-bg); color:var(--sedang)}
+  .ptag.baik{background:var(--baik-bg); color:var(--baik)}
+  .meter{display:flex; gap:5px; margin-bottom:9px}
+  .seg{height:9px; flex:1; border-radius:5px; background:#ece6d9; transform-origin:left; transform:scaleX(0); animation:grow .6s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes grow{to{transform:scaleX(1)}}
+  .seg.fill-utama{background:var(--utama)}
+  .seg.fill-sedang{background:var(--sedang)}
+  .seg.fill-baik{background:var(--baik)}
+  .focus-note{font-size:14.5px; color:var(--ink-soft)}
+
+  .hw{border:1px solid var(--line); border-radius:16px; padding:0; margin-bottom:13px; overflow:hidden; transition:.25s; background:var(--card)}
+  .hw.done{background:var(--baik-bg); border-color:#b6e0d2}
+  .hw-top{display:flex; gap:14px; padding:16px 17px; align-items:flex-start; cursor:pointer}
+  .checkbox{flex:none; width:26px; height:26px; border-radius:9px; border:2px solid #cfc7b6; display:flex; align-items:center; justify-content:center; transition:.2s; margin-top:1px}
+  .hw.done .checkbox{background:var(--baik); border-color:var(--baik)}
+  .checkbox svg{opacity:0; transform:scale(.5); transition:.2s}
+  .hw.done .checkbox svg{opacity:1; transform:scale(1)}
+  .hw-title{font-weight:700; font-size:15px; font-family:var(--display); letter-spacing:-.01em; line-height:1.25}
+  .hw.done .hw-title{text-decoration:line-through; text-decoration-color:rgba(19,138,106,.5); color:var(--ink-soft)}
+  .hw-instr{font-size:14.5px; color:var(--ink-soft); padding:0 17px 16px 57px; margin-top:-4px}
+  .hw-instr ul{margin:2px 0 0 18px; padding:0}
+  .hw-instr li{margin-bottom:4px}
+  .target{display:inline-flex; align-items:center; gap:7px; margin-top:11px; font-size:13px; font-weight:600; color:var(--accent-dark); background:#eaf2fb; padding:7px 12px; border-radius:10px}
+
+  .progress-wrap{display:flex; align-items:center; gap:18px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow-sm); margin-bottom:16px}
+  .ring{flex:none}
+  .ring circle{transition:stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1)}
+  .progress-wrap .ptxt b{font-family:var(--display); font-weight:800; font-size:19px; display:block}
+  .progress-wrap .ptxt span{font-size:13.5px; color:var(--ink-faint)}
+
+  .parent-tip{display:flex; gap:13px; align-items:flex-start; padding:13px 0; border-bottom:1px dashed var(--line)}
+  .parent-tip:last-child{border-bottom:none}
+  .parent-tip .dot{flex:none; width:30px; height:30px; border-radius:9px; background:var(--accent); display:flex; align-items:center; justify-content:center; margin-top:1px}
+  .parent-tip p{font-size:15px; color:var(--ink)}
+  .reminder{display:flex; gap:12px; align-items:flex-start; background:#fff6e9; border:1px solid #f1dcb4; border-radius:14px; padding:14px 16px; margin-top:14px}
+  .reminder svg{flex:none; margin-top:1px}
+  .reminder p{font-size:14px; color:#7a5a16}
+
+  .foot{text-align:center; color:var(--ink-faint); font-size:12.5px; margin-top:30px; line-height:1.7}
+  .empty-solid{text-align:center; padding:14px 0}
+  .empty-solid .big{font-family:var(--display); font-weight:800; font-size:22px; color:var(--baik); margin-bottom:4px}
+  .empty-solid p{color:var(--ink-soft); font-size:15px}
+  @media(max-width:520px){
+    .hero{padding:24px 20px}
+    .card{padding:17px 16px}
+    .hw-instr{padding-left:17px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brandbar">
+    <div class="brandmark" aria-hidden="true"></div>
+    <div class="brand-txt"><b>Aquatic Performance Lab</b><span>Sprint Lab</span></div>
+  </div>
+
+  <section id="home">
+    <div class="hero-home">
+      <span class="kicker">Laporan Minggu 1 · Fase 1</span>
+      <h1>Laporan Atlet<br>untuk Orang Tua</h1>
+      <p>Setiap atlet punya satu halaman pribadi: di mana letak kekuatan dan tantangannya, ditambah PR yang bisa dikerjakan di rumah dan di latihan klub selama seminggu ke depan.</p>
+    </div>
+    <div class="note-strip">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#14a38b" stroke-width="2"/><path d="M12 8v5" stroke="#14a38b" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1.2" fill="#14a38b"/></svg>
+      <p><b>Minggu pertama adalah sesi diagnostik.</b> Tujuannya memetakan titik awal tiap anak, bukan mengejar waktu. Hampir semua atlet teknik dasarnya masih runtuh saat kecepatan dinaikkan, dan itu wajar. Tantangan yang ditemukan di sini justru jadi peta jalan perbaikan minggu-minggu berikutnya.</p>
+    </div>
+    <p class="pick-label">Pilih atlet</p>
+    <div class="grid" id="grid"></div>
+    <p class="foot">Aquatic Performance Lab — Sprint System Series · Laporan ini bersifat personal untuk tiap atlet.</p>
+  </section>
+
+  <section id="detail">
+    <button class="back" onclick="goHome()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Semua atlet
+    </button>
+    <div id="detail-body"></div>
+    <p class="foot">Aquatic Performance Lab — Sprint System Series · Laporan Minggu 1<br>Daftar centang tersimpan selama halaman terbuka. Cetak atau screenshot bila perlu disimpan.</p>
+  </section>
+</div>
+
+<script>
+const ATHLETES = [
+  {
+    key:"avissa", name:"Avissa", initials:"AV", ac:"#ff6b4a", acd:"#c23e22", status:"Skill ada, perlu tahan saat lelah",
+    summary:"Avissa sudah punya ledakan kecepatan dan paham rasanya berenang maksimal. Tarikannya (pull-push) bahkan sudah bagus saat latihan pelan. Tantangannya muncul di 5 sampai 10 meter terakhir sprint: tenaga turun, lalu tarikan dan koordinasinya ikut runtuh. Jadi skill-nya sudah ada, hanya belum tahan saat lelah dan saat tempo tinggi.",
+    strengths:["Ledakan kecepatan sudah ada","Tarikan (pull-push) bagus saat drill","Sudah paham rasanya berenang maksimal"],
+    focus:[
+      {area:"Ketahanan tarikan saat lelah", level:"utama", note:"Tarikan Avissa bagus di latihan pelan tapi runtuh di akhir sprint. Begitu tenaga mulai turun di 5 sampai 10 meter terakhir, postur goyang dan tarikan langsung kosong. Strateginya: latih dulu di jarak pendek (15m) di mana tarikan masih bertahan, lalu perpanjang bertahap."},
+      {area:"Daya tahan kick", level:"sedang", note:"Ledakan kick di awal kuat, tapi mati di 5 sampai 10 meter terakhir, bahkan setelah istirahat penuh. Yang kurang bukan tenaganya, tapi kemampuan menahan tenaga itu lebih lama."},
+      {area:"Koordinasi saat tempo tinggi", level:"sedang", note:"Saat tempo dinaikkan, koordinasi pecah. Avissa belum terbiasa menjaga koordinasi di tempo tertinggi untuk waktu yang lama."}
+    ],
+    pattern:"Kabar baiknya: karena tarikannya sudah bagus saat pelan, ini bukan soal belajar gerakan baru, tapi soal memperluas jarak di mana gerakan itu bertahan. Catatan waktu yang naik-turun menunjukkan dia belum benar-benar masuk 100% di setiap rep, jadi konsistensi tenaga juga jadi target.",
+    homework:[
+      {title:"Dryland (ketahanan postur, anti-rotasi)", html:true, instr:"<ul><li>Pallof press hold (band/cable): 3 x 20 sampai 30 detik per sisi</li><li>Dead bug pelan dan terkontrol: 3 x 8 per sisi</li><li>Side plank: 3 x 30 detik per sisi</li><li>Skipping 5 sampai 10 menit setiap pagi</li><li>Lari 5 sampai 7 km (opsional)</li></ul>"},
+      {title:"Holding stroke rate at top speed (di latihan klub)", instr:"3x sprint, berhenti tepat di titik kamu merasa stroke mulai off-beat atau miss, baik di kick maupun di tarikan. Mulai dari 15m, lalu 20m, lalu 25m. Rekam videonya dan cek apakah ada perubahan rate, lalu catat perubahannya terjadi kapan dan di mana.", target:"Mulai 15m, naik bertahap ke 20m lalu 25m."}
+    ],
+    parentNote:"Avissa punya modal besar: ledakan kecepatan, keberanian, dan tarikan yang sudah bagus saat pelan. Fokus minggu ini adalah membuat tarikan dan kick itu bertahan saat lelah, lewat latihan jarak pendek yang diperpanjang bertahap.",
+    parentTips:["Bantu rekam video sprint dari samping di latihan klub","Bantu Avissa mencatat di jarak berapa tarikan atau kick mulai off","Dukung dia berani keluarkan tenaga penuh di setiap rep, bukan main aman"]
+  },
+  {
+    key:"tata", name:"Tata", initials:"TA", ac:"#2d7dd2", acd:"#154e87", status:"Fase membangun fondasi",
+    summary:"Tata sedang membangun fondasi, dan ini langkah yang benar. Kekuatan inti tubuh (core) yang belum cukup membuat posisi badan tidak stabil dan stroke memantul. Karena badan sibuk menjaga keseimbangan, tangan jadi mencari posisi alih-alih menangkap air, dan otak terlalu sibuk untuk mengeluarkan tenaga penuh. Kabar baiknya: begitu core menguat, banyak masalah lain ikut membaik sekaligus.",
+    strengths:["Akar masalah sudah terpetakan jelas: core","Menguatkan core memperbaiki banyak hal sekaligus","Fase fondasi adalah investasi jangka panjang"],
+    focus:[
+      {area:"Kekuatan inti (core) & posisi badan", level:"utama", note:"Belum ada dasar core untuk menjaga garis badan lurus, sehingga kaki turun, badan memantul, dan tenaga kick tidak tersalur ke depan. Ini akar dari sebagian besar tantangan lainnya."},
+      {area:"Mekanika catch", level:"utama", note:"Karena badan sibuk menjaga keseimbangan, saat tangan masuk air ia mencari posisi alih-alih menangkap air. Tenaga dorong hilang di fase paling awal tarikan."},
+      {area:"Kick (tenaga + daya tahan)", level:"utama", note:"Kick belum menambah dorongan. Saat ini lebih berfungsi sebagai penyeimbang yang belum efektif."}
+    ],
+    pattern:"Untuk Tata, sprint penuh diturunkan dulu. Memaksa sprint sekarang hanya melatih pola panik menjaga keseimbangan. Bangun dulu core dan posisi badan sebagai fondasi, baru kecepatan dinaikkan. Hasil belum terlihat di waktu, tapi yang dikerjakan sekarang adalah dasar yang benar.",
+    homework:[
+      {title:"Tabata core set (setiap pagi)", html:true, instr:"3 set, setiap pagi:<ul><li>Flutter kick 20 detik</li><li>Hollow hold 15 detik</li><li>Double flutter kick 20 detik</li><li>Hollow hold 15 detik</li></ul>"},
+      {title:"Dryland tambahan", html:true, instr:"<ul><li>Skipping 5 sampai 10 menit setiap pagi</li><li>High plank sampai gagal, catat waktu gagalnya</li></ul>"},
+      {title:"In-water (turunkan demand sprint, bangun platform)", html:true, instr:"<ul><li>Kick on side (6 kick switch): fokus garis badan lurus dan stabil</li><li>Streamline push-off 6x: tahan posisi tight selama mungkin, jaga badan jangan sampai berputar</li><li>Vertical kicking 4 x 20 detik untuk kualitas kick</li></ul>"}
+    ],
+    parentNote:"Tata sedang di fase paling penting: membangun fondasi. Kuncinya adalah latihan core ringan setiap pagi. Konsistensi jauh lebih penting daripada berenang sekeras mungkin di tahap ini.",
+    parentTips:["Dampingi Tabata core set setiap pagi, ini kunci utamanya","Fokus pada konsistensi, belum perlu mengejar kecepatan","Ingatkan: fondasi yang benar sekarang membuat semuanya lebih cepat nanti"]
+  },
+  {
+    key:"reva", name:"Reva", initials:"RV", ac:"#14a38b", acd:"#0a6657", status:"Sudah tahu gerakannya, perkuat di kecepatan",
+    summary:"Reva sudah tahu gerakan yang benar; rotasinya bagus saat latihan pelan (drill). Tantangannya: rotasi itu hilang saat berenang cepat, sehingga stroke jadi pendek dan menyamping, tarikan melebar, dan jarak per stroke berkurang. Untuk nomor 50m, justru jarak per stroke yang paling menentukan kecepatan, jadi ini arah yang perlu dijaga. Penyebabnya: otot core untuk rotasi belum cukup kuat menahan tempo tinggi.",
+    strengths:["Rotasi sudah bagus saat drill (tahu gerakannya)","Kick eksplosif sudah ada","Postur badan cukup baik"],
+    focus:[
+      {area:"Rotasi saat tempo tinggi", level:"utama", note:"Rotasi ada saat drill tapi hilang saat tempo naik. Tubuh mengorbankan rotasi demi mempertahankan turnover, sehingga stroke jadi pendek dan menyamping. Untuk 50m, jarak per stroke lebih penting daripada sekadar tempo cepat."},
+      {area:"Core untuk rotasi (oblique & hip)", level:"sedang", note:"Kelemahan spesifik di otot rotasi, bukan core secara umum. Otot ini belum cukup kuat menggerakkan rotasi saat tempo tinggi."},
+      {area:"Daya tahan kick", level:"sedang", note:"Ledakan kick ada, ini modal bagus. Tapi tanpa daya tahan, kick hanya efektif di 10 sampai 15 meter pertama."}
+    ],
+    pattern:"Reva adalah kasus di mana latihan pelan belum otomatis berpindah ke renang cepat. Perlu latihan jembatan dan latihan yang menjaga jarak per stroke (SWOLF). Catatan: perlu dipastikan dulu ini bukan keterbatasan kelenturan bahu, bukan hanya core.",
+    homework:[
+      {title:"Dryland (core rotasi, 3x per minggu)", html:true, instr:"<ul><li>Side plank with rotation: 3 x 8 per sisi</li><li>Med ball atau band rotational throw / woodchop: 3 x 6 per sisi</li><li>Bird-dog: 3 x 8 per sisi</li><li>Cek kelenturan bahu (wall slide): tangan harus menempel ke tembok dari posisi awal sampai akhir</li></ul>"},
+      {title:"In-water (re-pattern rotasi, jaga jarak per stroke)", html:true, instr:"<ul><li>Drill 6-3-6 (6 kick glide, 3 stroke normal, 6 kick glide) dan single-arm freestyle, fokus rotasi penuh</li><li>SWOLF swim 4 x 25m: ambil waktu + hitung stroke, gabungkan jadi satu skor</li></ul>", target:"Skor SWOLF sama tiap rep, tapi waktu harus turun."}
+    ],
+    parentNote:"Reva sudah tahu gerakan yang benar, dia hanya butuh kekuatan untuk mempertahankannya saat cepat. Latihan core rotasi dan latihan SWOLF (menjaga jarak per stroke) adalah kunci minggu ini.",
+    parentTips:["Bantu ingatkan latihan core rotasi 3x seminggu","Dukung dia berlatih rotasi di tempo sedang dulu, bukan langsung sprint","Bantu Reva mencatat skor SWOLF (waktu + jumlah stroke) tiap rep"]
+  },
+  {
+    key:"joshua", name:"Joshua", initials:"JO", ac:"#6c5ce7", acd:"#3f2fa8", status:"Tenaga ada, benahi entry & napas dulu",
+    summary:"Joshua punya tenaga, tapi terhambat dua hal yang saling berhubungan. Pertama, saat masuk air jempolnya masuk lebih dulu, sehingga tangan harus membenahi posisi sebelum bisa menangkap air, dan di sprint tidak ada waktu untuk itu. Kedua, napasnya terlalu tinggi dan menengok ke belakang, menciptakan hambatan dan membuat badan tenggelam. Memperbaiki cara masuk air dan napas akan memicu perbaikan beruntun.",
+    strengths:["Tenaga dan eksplosifitas sudah ada","Masalah terpetakan jelas dan saling terhubung","Perbaikan entry & napas memicu efek berantai"],
+    focus:[
+      {area:"Cara masuk air (entry) & catch", level:"utama", note:"Jempol masuk lebih dulu sehingga posisi tangan harus dibenahi sebelum menangkap air. Di sprint, ini membuat fase menangkap air terlewat. Perlu dilatih ulang agar jari kelingking atau empat jari yang masuk lebih dulu, dengan siku tinggi."},
+      {area:"Pola napas & posisi kepala", level:"utama", note:"Kepala terlalu tinggi dan menengok ke belakang saat napas, menciptakan hambatan besar dan merusak garis badan. Napas sebaiknya rendah dan singkat, cukup mulut keluar dari air."},
+      {area:"Posisi badan (penggunaan core di air)", level:"sedang", note:"Badan cenderung tenggelam karena core belum dipakai untuk menahan postur. Catatan penting: belum perlu dipaksa mengangkat badan tinggi, justru perbaiki posisi kepala dulu supaya tidak makin terangkat."}
+    ],
+    pattern:"Masalah Joshua bersifat berantai: cara masuk air yang kurang rapi merusak tangkapan air, dan napas yang tinggi merusak garis badan. Maka memperbaiki entry dan napas lebih dulu akan memicu perbaikan di banyak bagian sekaligus.",
+    homework:[
+      {title:"Tabata core set (setiap pagi)", html:true, instr:"3 set, setiap pagi:<ul><li>Flutter kick 20 detik</li><li>Hollow hold 15 detik</li><li>Double flutter kick 20 detik</li><li>Hollow hold 15 detik</li></ul>"},
+      {title:"Dryland tambahan", html:true, instr:"<ul><li>Superman / back extension hold: 3 x 20 detik setiap pagi</li><li>Skipping 5 sampai 10 menit setiap pagi</li></ul>"},
+      {title:"In-water (entry, paddle, napas)", html:true, instr:"<ul><li>Entry: fingertip drag drill dan catch-up, fokus tangan masuk dengan kelingking atau empat jari dulu, bukan jempol</li><li>Front scull + swim with paddle tanpa strap belakang: fokus bagian belakang paddle harus tetap menempel ke tangan saat recovery</li><li>Setiap swim dan drill: napas rendah ke samping, satu kacamata tetap di air, buang napas penuh di bawah air, mata melihat serong ke bawah-depan bukan ke belakang</li></ul>"}
+    ],
+    parentNote:"Joshua sudah punya tenaga; tantangannya teknis dan saling terhubung. Kabar baiknya, latihan core dan recovery bisa dilakukan di rumah. Tolong jangan menyuruhnya mengangkat badan tinggi-tinggi dulu, fokusnya minggu ini adalah cara masuk air dan posisi napas yang rendah.",
+    parentTips:["Latihan core pagi dan skipping bisa dilakukan di rumah setiap hari","Bantu perhatikan saat napas: apakah kepala terangkat dan menengok ke belakang?","Ingatkan napas serendah mungkin, cukup mulut keluar dari air"]
+  },
+  {
+    key:"tasha", name:"Tasha", initials:"TS", ac:"#3fa34d", acd:"#1f6b2e", status:"Fondasi terbaik, poles tarikan",
+    summary:"Tasha punya fondasi terbaik di antara atlet yang sedang memperbaiki dorongan: core dan posisi badan sudah bagus, dan kick-nya eksplosif. Tantangan utamanya: tarikan dengan lengan lurus penuh terlalu berat untuk ditahan, sehingga tangannya goyang dan tarikannya mengiris air alih-alih menangkapnya. Karena tidak ada masalah lain yang menghambat, perbaikan di sini akan langsung terlihat di waktu.",
+    strengths:["Core & posisi badan sudah bagus (fondasi solid)","Kick eksplosif (otot cepat sudah aktif)","Tidak ada masalah teknis lain yang menghambat"],
+    focus:[
+      {area:"Tarikan terlalu lurus & rasa air", level:"utama", note:"Tarikan dengan lengan lurus penuh menciptakan beban yang sangat berat. Karena kekuatan tariknya belum cukup, tangan goyang dan tarikan jadi menghindari air. Solusi cepat: tekuk siku sedikit lebih awal supaya bebannya lebih ringan dan tangan bisa menangkap air."},
+      {area:"Kekuatan tarik (lat & grip)", level:"sedang", note:"Membangun kekuatan otot punggung dan genggaman akan membuatnya mampu menahan tarikan yang lebih kuat. Ini dikerjakan di darat, sebagai pelengkap perbaikan teknik di air."},
+      {area:"Daya tahan kick", level:"sedang", note:"Ledakan kick ada. Yang kurang adalah kemampuan mempertahankannya lebih dari 10 sampai 15 meter, lewat gerakan yang lebih ekonomis."}
+    ],
+    pattern:"Karena fondasinya sudah benar, perbaikan pada tarikan akan langsung terlihat di waktu, tanpa harus membenahi hal lain dulu. Jalur cepat: tekuk siku sedikit lebih awal di air. Jalur jangka menengah: bangun kekuatan tarik di darat.",
+    homework:[
+      {title:"Dryland (kekuatan tarik & genggaman)", html:true, instr:"<ul><li>Band straight-arm pulldown: 3 x 12</li><li>Inverted row atau bent-over row: 3 x 8 sampai 10</li><li>Dead hang (gantung) untuk grip: 3 x 20 sampai 30 detik</li></ul>"},
+      {title:"In-water (tekuk siku lebih awal)", html:true, instr:"<ul><li>Front scull dan mid scull untuk membangun rasa air dan genggaman</li><li>Catch drill dengan cue 'peluk air-nya': tekuk siku lebih awal, lengan bawah menghadap ke belakang</li><li>Mid sculling: 4 x 20 detik</li></ul>"}
+    ],
+    parentNote:"Tasha punya fondasi paling kuat di antara teman-temannya. Perbaikan kecil pada tarikan akan cepat terlihat di catatan waktu. Latihan sculling membangun rasa air, dan latihan kekuatan tarik di darat melengkapinya.",
+    parentTips:["Dukung latihan sculling sebagai warm-up tiap sesi klub","Perbaikan kecil di tarikan akan cepat terlihat di waktu","Pertahankan fondasi core dan posisi badan yang sudah bagus"]
+  },
+  {
+    key:"saniya", name:"Saniya", initials:"SA", ac:"#e1457b", acd:"#97184a", status:"Catch spesifik + keberanian penuh",
+    summary:"Posisi tangan Saniya saat menangkap air terlalu datar, belum miring ke bawah, sehingga separuh awal tarikan kosong dan tiap stroke hanya memakai sekitar separuh potensinya. Selain itu, dia terlihat menahan, belum berani berenang 100%. Kemungkinan keduanya saling berhubungan: tubuhnya otomatis menahan karena 'tahu' tarikannya akan kosong kalau dipaksa penuh. Kabar baiknya: masalah tangkapan air ini spesifik dan cepat diperbaiki.",
+    strengths:["Posisi badan sudah bagus","Kick eksplosif sudah ada","Masalah catch sangat spesifik dan cepat diperbaiki"],
+    focus:[
+      {area:"Posisi catch (belum miring ke bawah)", level:"utama", note:"Tangan terlalu datar saat menangkap air, sehingga separuh awal tarikan kosong. Akibatnya tiap stroke hanya memakai sekitar separuh potensinya. Begitu posisi ini diperbaiki, dorongan naik signifikan."},
+      {area:"Keberanian keluarkan tenaga penuh", level:"sedang", note:"Push off lemah, underwater pendek, dan tempo tidak penuh menunjukkan dia menahan. Coach akan menguji dengan alat bantu (fin) untuk memastikan apakah ini soal keberanian atau soal tarikan yang slip."},
+      {area:"Daya tahan kick", level:"sedang", note:"Ledakan kick ada, positif. Tapi daya tahannya belum ada, sehingga turun setelah 10 sampai 15 meter."}
+    ],
+    pattern:"Begitu tangkapan air diperbaiki, dorongan akan naik signifikan tanpa perubahan besar di bagian lain. Di sesi berikutnya coach akan tes singkat dengan fin untuk memastikan akar masalahnya, lalu menentukan latihan lanjutannya.",
+    homework:[
+      {title:"Dryland (latih niat maksimal di konteks aman)", html:true, instr:"<ul><li>Med ball slam atau chest throw, niat 100%: 3 x 5</li><li>Broad jump atau vertical jump, all-out tiap rep: 3 x 5</li><li>Core ringan: dead bug 3 x 8 per sisi</li></ul>"},
+      {title:"In-water (niat + tangkapan air)", html:true, instr:"<ul><li>Short sprint 15m x 4 descending time: waktu harus turun tiap rep. Bisa diulang 2 hari sekali lalu dibandingkan hasilnya</li><li>Front scull + swim with paddle tanpa strap belakang: bagian belakang paddle harus menempel ke tangan saat recovery</li></ul>", target:"Waktu harus turun setiap repetisi."}
+    ],
+    parentNote:"Saniya punya satu perbaikan tangkapan air yang spesifik dan cepat membuahkan hasil. Selain itu, dia perlu dorongan keyakinan: berenang 100% itu aman, dan dia boleh keluarkan semua tenaganya.",
+    parentTips:["Dukung Saniya menilai usahanya sendiri 1 sampai 10 tiap rep, lalu catat waktunya","Yakinkan dia bahwa berenang 100% itu aman dan boleh","Rayakan keberaniannya mencoba sprint penuh, bukan hanya catatan waktunya"]
+  },
+  {
+    key:"dora", name:"Dora", initials:"DO", ac:"#e8a33d", acd:"#a9690f", status:"Solid, siap konten lanjutan", solid:true,
+    summary:"Tidak ada masalah teknis berarti di Minggu 1. Dora sudah berada di atas standar teknik yang dibutuhkan untuk berenang maksimal, dan bisa langsung masuk ke konten kecepatan. Tugasnya minggu ini bersifat tantangan bonus agar dia tetap berkembang dan tidak jenuh.",
+    strengths:["Sudah di atas standar teknik yang dibutuhkan","Konsistensi antar rep sudah bagus","Bisa langsung masuk konten kecepatan"],
+    focus:[],
+    pattern:"Dora siap untuk tantangan berikutnya. Yang dijaga adalah agar dia tetap tertantang dan tidak stagnan, lewat tugas yang lebih mandiri.",
+    homework:[
+      {title:"Dryland (maintenance)", html:true, instr:"<ul><li>Core maintenance ringan: plank dan dead bug, 2x per minggu</li><li>Mobilitas rutin</li></ul>"},
+      {title:"In-water (mandiri + tantangan progresif)", html:true, instr:"<ul><li>Pertahankan stroke count optimal di waktu yang lebih cepat dari Minggu 1</li><li>Tugas self-coaching: rancang 1 mini sprint set sendiri (10 sampai 15 menit) dan bawa hasilnya</li></ul>"}
+    ],
+    parentNote:"Dora menyelesaikan minggu pertama tanpa masalah teknis. Untuk menjaga semangat, dia diberi tugas yang lebih mandiri dan menantang. Jaga agar latihan tetap menyenangkan.",
+    parentTips:["Dukung Dora menjaga jumlah stroke sambil mengejar waktu lebih cepat","Beri ruang untuk merancang set latihannya sendiri","Jaga agar latihan tetap menyenangkan dan menantang"]
+  },
+  {
+    key:"rendra", name:"Rendra", initials:"RE", ac:"#f07a3a", acd:"#b14a12", status:"Solid, di atas standar grup", solid:true,
+    summary:"Tidak ada masalah teknis berarti di Minggu 1. Rendra sudah berada di atas standar teknik yang dibutuhkan dan eksekusi sprint-nya menunjukkan pemahaman tenaga penuh yang sebenarnya. Dia siap masuk konten kecepatan dan mulai menganalisis latihannya sendiri.",
+    strengths:["Sudah di atas standar teknik yang dibutuhkan","Sudah paham arti tenaga penuh yang sebenarnya","Bisa langsung masuk konten kecepatan"],
+    focus:[],
+    pattern:"Rendra siap untuk tantangan berikutnya. Tugas bonusnya mendorong dia mulai berpikir seperti atlet yang mengelola latihannya sendiri.",
+    homework:[
+      {title:"Dryland (maintenance)", html:true, instr:"<ul><li>Core maintenance ringan: plank dan dead bug, 2x per minggu</li><li>Mobilitas rutin</li></ul>"},
+      {title:"In-water (mandiri + tantangan progresif)", html:true, instr:"<ul><li>Pertahankan stroke count optimal di waktu yang lebih cepat dari Minggu 1</li><li>Tugas self-coaching: rancang 1 mini sprint set sendiri (10 sampai 15 menit) dan bawa hasilnya</li></ul>"}
+    ],
+    parentNote:"Rendra tampil di atas standar grup dan sudah paham arti tenaga penuh. Tugasnya mendorong dia mulai berpikir seperti atlet yang mengelola latihannya sendiri. Jaga motivasinya dengan tantangan yang menantang.",
+    parentTips:["Dukung Rendra menjaga jumlah stroke sambil mengejar waktu lebih cepat","Beri ruang untuk merancang set latihannya sendiri","Jaga motivasi dengan tantangan yang lebih menantang"]
+  }
+];
+
+const ICONS = {
+  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  checkSm:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#0c5a45" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  spark:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z" fill="#fff"/></svg>',
+  flag:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 21V4M6 4h11l-2 3 2 3H6" stroke="var(--accent-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  bulb:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.6.5 1 1.2 1.1 2h5c.1-.8.5-1.5 1.1-2A6 6 0 0012 3z" stroke="#e8a33d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+
+const grid = document.getElementById('grid');
+ATHLETES.forEach((a,i)=>{
+  const b = document.createElement('button');
+  b.className='athlete-btn';
+  b.style.setProperty('--ac',a.ac); b.style.setProperty('--acd',a.acd);
+  b.style.animation='fade .5s ease both'; b.style.animationDelay=(i*0.05)+'s';
+  b.onclick=()=>openAthlete(a.key);
+  b.innerHTML='<div class="av">'+a.initials+'</div><h3>'+a.name+'</h3>'+
+    '<span class="go">Lihat laporan'+
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  grid.appendChild(b);
+});
+
+let current=null;
+function openAthlete(key){
+  const a = ATHLETES.find(x=>x.key===key); if(!a) return;
+  current=a;
+  document.documentElement.style.setProperty('--accent',a.ac);
+  document.documentElement.style.setProperty('--accent-dark',a.acd);
+  const body = document.getElementById('detail-body');
+
+  const strengthChips = a.strengths.map(s=>'<span class="chip">'+ICONS.checkSm+s+'</span>').join('');
+
+  let focusHTML;
+  if(a.focus.length){
+    focusHTML = a.focus.map((f,idx)=>{
+      const fillN = f.level==='utama'?1:(f.level==='sedang'?2:3);
+      const cls = 'fill-'+f.level;
+      const label = f.level==='utama'?'Fokus utama':(f.level==='sedang'?'Sedang dikembangkan':'Sudah baik');
+      let segs='';
+      for(let s=0;s<3;s++){
+        const on = s<fillN;
+        segs += '<div class="seg '+(on?cls:'')+'" style="animation-delay:'+((idx*0.12)+(s*0.08))+'s"></div>';
+      }
+      return '<div class="focus-item"><div class="focus-head"><span class="name">'+f.area+'</span><span class="ptag '+f.level+'">'+label+'</span></div><div class="meter">'+segs+'</div><p class="focus-note">'+f.note+'</p></div>';
+    }).join('');
+  } else {
+    focusHTML = '<div class="empty-solid"><div class="big">Siap untuk konten lanjutan</div><p>Tidak ada tantangan teknis prioritas di Minggu 1. Fokus berikutnya adalah optimasi stroke count dan tantangan mandiri.</p></div>';
+  }
+
+  const hwHTML = a.homework.map((h,idx)=>{
+    const instr = h.html ? h.instr : '<p>'+h.instr+'</p>';
+    const target = h.target ? '<div class="target">'+ICONS.flag+h.target+'</div>' : '';
+    return '<div class="hw" id="hw-'+idx+'"><div class="hw-top" onclick="toggleHW('+idx+')"><div class="checkbox">'+ICONS.check+'</div><div><div class="hw-title">'+h.title+'</div></div></div><div class="hw-instr">'+instr+target+'</div></div>';
+  }).join('');
+
+  const tipsHTML = a.parentTips.map(t=>'<div class="parent-tip"><div class="dot">'+ICONS.checkSm.replace('#0c5a45','#fff')+'</div><p>'+t+'</p></div>').join('');
+
+  const C = 2*Math.PI*24;
+  body.innerHTML =
+    '<div class="hero" style="--accent:'+a.ac+';--accent-dark:'+a.acd+'"><div class="hero-row"><div class="av">'+a.initials+'</div><div><h2>'+a.name+'</h2><div class="sub">Laporan Minggu 1 · Sprint Lab</div></div></div><span class="statuspill">'+ICONS.spark+a.status+'</span></div>'+
+    '<div class="tabs" role="tablist"><button class="tab active" onclick="switchTab(0,this)">Ringkasan</button><button class="tab" onclick="switchTab(1,this)">Profil &amp; Fokus</button><button class="tab" onclick="switchTab(2,this)">Homework</button><button class="tab" onclick="switchTab(3,this)">Untuk Orang Tua</button></div>'+
+    '<div class="panel active" data-p="0"><div class="card summary-card"><h4>Ringkasan</h4><p>'+a.summary+'</p></div><div class="card"><h4>Pola yang terlihat</h4><p>'+a.pattern+'</p></div></div>'+
+    '<div class="panel" data-p="1"><div class="card"><h4>'+ICONS.spark.replace(/#fff/g,'#138a6a')+' Kekuatan</h4><div class="chips">'+strengthChips+'</div></div><div class="card"><h4>Fokus minggu ini</h4>'+focusHTML+'<p style="font-size:12.5px;color:var(--ink-faint);margin-top:16px">Penilaian berdasarkan observasi coach di sesi Minggu 1. Bar yang lebih panjang dan hijau berarti area itu sudah kuat.</p></div></div>'+
+    '<div class="panel" data-p="2"><div class="progress-wrap"><svg class="ring" width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#ece6d9" stroke-width="6"/><circle id="ringfill" cx="29" cy="29" r="24" fill="none" stroke="'+a.ac+'" stroke-width="6" stroke-linecap="round" transform="rotate(-90 29 29)" stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'"/></svg><div class="ptxt"><b id="hwcount">0 dari '+a.homework.length+'</b><span>tugas selesai minggu ini</span></div></div>'+hwHTML+'</div>'+
+    '<div class="panel" data-p="3"><div class="card summary-card"><h4>Yang perlu orang tua tahu</h4><p>'+a.parentNote+'</p></div><div class="card"><h4>Cara membantu di rumah</h4>'+tipsHTML+'<div class="reminder">'+ICONS.bulb+'<p>Latihan ini melengkapi latihan klub, bukan menggantikannya. Kualitas gerakan lebih penting daripada jumlahnya, dan core tidak perlu dilatih sampai gagal setiap hari. Pastikan anak tetap cukup istirahat.</p></div></div></div>';
+
+  document.getElementById('home').style.display='none';
+  document.getElementById('detail').style.display='block';
+  window.scrollTo(0,0);
+}
+
+let hwState = {};
+function toggleHW(idx){
+  hwState[idx]=!hwState[idx];
+  document.getElementById('hw-'+idx).classList.toggle('done',hwState[idx]);
+  const total=current.homework.length;
+  const done=Object.values(hwState).filter(Boolean).length;
+  document.getElementById('hwcount').textContent=done+' dari '+total;
+  const C=2*Math.PI*24;
+  document.getElementById('ringfill').setAttribute('stroke-dashoffset', C*(1-done/total));
+}
+function switchTab(i,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.dataset.p==i));
+  if(i==1) restartBars();
+}
+function restartBars(){
+  document.querySelectorAll('.seg').forEach(s=>{ s.style.animation='none'; void s.offsetWidth; s.style.animation=''; });
+}
+function goHome(){
+  hwState = {};
+  document.getElementById('detail').style.display='none';
+  document.getElementById('home').style.display='block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
