@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Dora — Race Card Batang</title>
+<style>
+  :root{
+    --navy: #0a1628;
+    --navy-deep: #050d1a;
+    --lane: #00d4ff;
+    --lane-dim: #0891b2;
+    --coral: #ff5e5e;
+    --gold: #ffc857;
+    --green: #5fd97a;
+    --foam: #e8f4f8;
+    --mist: #93a8c2;
+    --line: rgba(255,255,255,0.12);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--navy-deep);
+    color: var(--foam);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100%;
+  }
+
+  body {
+    background-image:
+      repeating-linear-gradient(180deg, transparent 0px, transparent 38px, rgba(255,255,255,0.022) 38px, rgba(255,255,255,0.022) 40px);
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ============ MENU VIEW ============ */
+  .menu {
+    padding: 22px 18px 40px;
+    transition: opacity .25s, transform .25s;
+  }
+  .menu.hidden { display: none; }
+
+  .menu-head { text-align: center; margin-bottom: 22px; }
+  .menu-head .meet {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--lane); font-weight: 700;
+  }
+  .menu-head .athlete {
+    font-size: 26px; font-weight: 800; color: var(--foam);
+    letter-spacing: 0.5px; margin-top: 4px;
+  }
+  .menu-head .sub { font-size: 11.5px; color: var(--mist); margin-top: 5px; }
+
+  .menu-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .menu-item {
+    background: linear-gradient(135deg, #0d1f38 0%, #0a1628 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform .15s, border-color .15s, background .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .menu-item:active { transform: scale(0.98); border-color: var(--lane-dim); }
+
+  .menu-item .idx {
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: var(--lane);
+    font-variant-numeric: tabular-nums;
+  }
+  .menu-item .mi-text { flex: 1; min-width: 0; }
+  .menu-item .mi-event {
+    font-size: 16px; font-weight: 800; color: var(--foam); line-height: 1.2;
+  }
+  .menu-item .mi-style { font-size: 12px; color: var(--lane); margin-top: 1px; }
+  .menu-item .mi-target {
+    flex-shrink: 0; text-align: right;
+  }
+  .menu-item .mi-target .tlbl {
+    font-size: 8px; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--mist); margin-bottom: 2px;
+  }
+  .menu-item .mi-target .tval {
+    font-size: 14px; font-weight: 800; color: var(--green);
+    font-variant-numeric: tabular-nums;
+  }
+  .menu-item .chev { flex-shrink: 0; color: var(--mist); font-size: 18px; margin-left: 2px; }
+
+  .menu-foot {
+    text-align: center; margin-top: 28px;
+    font-size: 11px; letter-spacing: 1.5px; color: var(--mist); text-transform: uppercase;
+  }
+  .menu-foot b { color: var(--gold); }
+
+  /* ============ DETAIL VIEW ============ */
+  .detail {
+    display: none;
+    padding: 0 0 40px;
+    animation: slideIn .28s ease;
+  }
+  .detail.active { display: block; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .detail-bar {
+    position: sticky; top: 0; z-index: 50;
+    background: linear-gradient(180deg, var(--navy-deep) 78%, transparent);
+    padding: 16px 18px 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 13px;
+    color: var(--foam);
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+  }
+  .back-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.1); }
+  .detail-bar .dcount { font-size: 12px; color: var(--mist); font-weight: 700; letter-spacing: 1px; margin-left: auto; }
+
+  .card-inner {
+    margin: 0 16px;
+    background: linear-gradient(155deg, #0d1f38 0%, #0a1628 55%, #081320 100%);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 22px 22px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+  }
+  .card-inner::before {
+    content: ""; position: absolute; top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, var(--lane-dim) 0%, transparent 70%);
+    opacity: 0.25;
+  }
+
+  .num-tag {
+    display: inline-flex; align-items: baseline; gap: 8px;
+    font-size: 10px; letter-spacing: 2px; color: var(--mist);
+    text-transform: uppercase; font-weight: 700;
+  }
+  .num-tag .idx { color: var(--gold); font-size: 12px; }
+
+  h1.event {
+    font-size: 26px; font-weight: 800; color: var(--foam);
+    line-height: 1.15; margin-top: 8px; letter-spacing: -0.3px;
+  }
+  h1.event .style {
+    display:block; font-size: 15px; font-weight: 600;
+    color: var(--lane); margin-top: 2px;
+  }
+
+  .divider { height: 1px; background: linear-gradient(90deg, var(--line), transparent); margin: 14px 0; }
+
+  .target-band {
+    background: rgba(95,217,122,0.08);
+    border: 1px solid rgba(95,217,122,0.25);
+    border-radius: 14px;
+    padding: 12px 14px; text-align: center; margin-bottom: 14px;
+  }
+  .target-band .lbl {
+    font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--green); font-weight: 800; margin-bottom: 4px;
+  }
+  .target-band .range {
+    font-size: 25px; font-weight: 800; color: var(--foam);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.5px;
+  }
+  .target-band .range .sep { color: var(--mist); font-weight: 500; margin: 0 6px; font-size: 18px; }
+
+  .section-lbl {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--mist); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .section-lbl::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--lane); }
+
+  .splits { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .split-box {
+    flex: 1; min-width: 64px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+    border-radius: 12px; padding: 9px 6px; text-align: center;
+  }
+  .split-box .lbl {
+    font-size: 8.5px; color: var(--mist); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .split-box .val {
+    font-size: 15px; font-weight: 800; color: var(--gold);
+    font-variant-numeric: tabular-nums; line-height: 1.25;
+  }
+  .split-box.note .val { font-size: 11.5px; color: var(--mist); font-weight: 600; font-style: italic; }
+
+  .strategy-steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .step {
+    display: flex; gap: 10px;
+    background: rgba(0,212,255,0.06); border-left: 3px solid var(--lane);
+    border-radius: 0 10px 10px 0; padding: 9px 12px;
+  }
+  .step .seg { flex-shrink: 0; font-size: 10.5px; font-weight: 800; color: var(--lane); min-width: 48px; }
+  .step p { font-size: 13px; line-height: 1.45; color: var(--foam); font-weight: 500; }
+
+  .caution {
+    background: rgba(255,94,94,0.08); border-left: 3px solid var(--coral);
+    border-radius: 0 12px 12px 0; padding: 11px 14px; margin-bottom: 10px;
+  }
+  .caution .tag {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--coral); margin-bottom: 4px;
+  }
+  .caution p { font-size: 13.5px; line-height: 1.48; color: var(--foam); font-weight: 500; }
+
+  .gold-block {
+    background: rgba(255,200,87,0.07); border-left: 3px solid var(--gold);
+    border-radius: 0 12px 12px 0; padding: 11px 14px; margin-bottom: 10px;
+  }
+  .gold-block .tag {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 4px;
+  }
+  .gold-block p { font-size: 13.5px; line-height: 1.48; color: var(--foam); font-weight: 500; }
+
+  .reminder {
+    padding-top: 12px; margin-top: 4px;
+    border-top: 1px dashed var(--line);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .reminder .icon { font-size: 15px; line-height: 1.4; }
+  .reminder p { font-size: 12px; color: var(--mist); font-style: italic; line-height: 1.4; }
+
+  /* detail nav between events */
+  .detail-nav {
+    display: flex; gap: 10px; margin: 16px 16px 0;
+  }
+  .nav-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px;
+    color: var(--foam); font-size: 13px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background .15s, transform .15s;
+  }
+  .nav-btn:active { transform: scale(0.97); background: rgba(255,255,255,0.09); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+</style>
+</head>
+<body>
+
+<!-- ============ MENU ============ -->
+<div class="menu" id="menu">
+  <div class="menu-head">
+    <div class="meet">Kejuaraan Renang &middot; Batang</div>
+    <div class="athlete">Theodora &mdash; Race Card</div>
+    <div class="sub">Tap nomor lomba untuk lihat strateginya</div>
+  </div>
+  <div class="menu-list" id="menuList"></div>
+  <div class="menu-foot"><b>Every lap counts.</b><br>Swim faster by fixing what matters.</div>
+</div>
+
+<!-- ============ DETAIL ============ -->
+<div class="detail" id="detail">
+  <div class="detail-bar">
+    <button class="back-btn" id="backBtn">&larr; Daftar Lomba</button>
+    <span class="dcount" id="dcount"></span>
+  </div>
+  <div id="detailBody"></div>
+  <div class="detail-nav">
+    <button class="nav-btn" id="prevBtn">&larr; Sebelumnya</button>
+    <button class="nav-btn" id="nextBtn">Selanjutnya &rarr;</button>
+  </div>
+</div>
+
+<script>
+const EVENTS = [
+  {
+    idx: "01", dist: "50m", style: "Gaya Punggung", short: "30.52",
+    target: "30.52 <span class='sep'>&ndash;</span> 31.25",
+    splits: [
+      { lbl: "Split 25m", val: "13.7 atau lebih kenceng" },
+      { lbl: "15m Terakhir", val: "10.2&ndash;10.3" }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Strategi",
+    steps: [
+      { seg: "0&ndash;15m", txt: "Fokus breakout. Hati-hati lewat dari 15m &mdash; jangan buru-buru naik sebelum momentum dari dinding kepake maksimal." },
+      { seg: "15m akhir", txt: "Fokus ke postur badan dan push kick untuk keluar." }
+    ],
+    reminder: "Breakout bersih + postur kuat di 15m terakhir. Dua hal ini yang nentuin angka di papan."
+  },
+  {
+    idx: "02", dist: "100m", style: "Gaya Bebas", short: "59.50",
+    target: "59.50 <span class='sep'>&ndash;</span> 1:00.20",
+    splits: [
+      { lbl: "50m ke-1", val: "29.50&ndash;30.00" },
+      { lbl: "50m ke-2", val: "29.90&ndash;30.20" }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Strategi",
+    steps: [
+      { seg: "50m-1", txt: "Fokus ke DPS aja, jangan terlalu push rate. Save energy." },
+      { seg: "50m-2", txt: "All out." }
+    ],
+    gold: { tag: "Target Pembelajaran", txt: "Belajar untuk bisa dapet split 29 atau 30 kecil di 50m kedua. Catatan waktu total bukan jadi prioritas utama." },
+    reminder: "DPS dulu, all out belakangan. Yang dinilai hari ini bukan angka totalnya &mdash; tapi apakah 50m kedua bisa lebih cepat dari 50m pertama."
+  },
+  {
+    idx: "03", dist: "100m", style: "Gaya Kupu Kupu", short: "1:05.50",
+    target: "1:05.50 <span class='sep'>&ndash;</span> 1:06.50",
+    splits: [
+      { lbl: "50m ke-1", val: "29.70&ndash;30.00" },
+      { lbl: "50m ke-2", val: "35.50&ndash;36.90" }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Strategi per 25m",
+    steps: [
+      { seg: "25m-1", txt: "Hipo 3-1" },
+      { seg: "25m-2", txt: "2 Up 1 Down" },
+      { seg: "25m-3", txt: "Fokus on speed underwater dan 2 Up 1 Down" },
+      { seg: "25m-4", txt: "Fokus ke panjang stroke dan press undulasi &mdash; jangan buru-buru naikin rate." }
+    ],
+    reminder: "Empat 25m, empat fokus berbeda. Disiplin di urutan napas dari awal biar 25m terakhir masih ada tenaga buat jaga stroke length."
+  },
+  {
+    idx: "04", dist: "100m", style: "Gaya Punggung", short: "1:10.90",
+    target: "1:10.90 <span class='sep'>&ndash;</span> 1:12.90",
+    splits: [
+      { lbl: "50m ke-1", val: "32.80&ndash;33.20" },
+      { lbl: "50m ke-2", val: "38.00&ndash;39.80" }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Strategi",
+    steps: [
+      { seg: "50m-1", txt: "Fast &mdash; pasang kecepatan dari awal." },
+      { seg: "50m-2", txt: "Jaga postur dan perhatiin rate tangan &mdash; jangan sampai drop." }
+    ],
+    caution: { tag: "&#9888; Perhatian Khusus", txt: "Rate tangan di 50m kedua jangan sampai drop. Postur tetap jadi prioritas walau udah capek." },
+    reminder: "Fast di depan boleh, tapi rate di belakang tetap harus terjaga &mdash; bukan sekadar bertahan."
+  },
+  {
+    idx: "05", dist: "200m", style: "Gaya Bebas", short: "2:12.00",
+    target: "2:12.00 <span class='sep'>&ndash;</span> 2:15.00",
+    splits: [
+      { lbl: "50m-1", val: "31" },
+      { lbl: "50m-2", val: "33&ndash;34" },
+      { lbl: "50m-3", val: "34&ndash;35" },
+      { lbl: "50m-4", val: "34" }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Breathing Pattern per 50m",
+    steps: [
+      { seg: "50m-1", txt: "Breathing pattern 4-2-4" },
+      { seg: "50m-2", txt: "Tanpa Hipo. Fokus naikin rate dan jaga DPS." },
+      { seg: "50m-3", txt: "Breathing pattern 4-2-2-4" },
+      { seg: "50m-4", txt: "Push kick, ambil breathing pattern 4-2-4. Jaga rate tinggi." }
+    ],
+    reminder: "50m kedua dan ketiga adalah kunci &mdash; berani naikin rate, jangan ditahan sama rata."
+  },
+  {
+    idx: "06", dist: "50m", style: "Gaya Kupu Kupu", short: "29.11",
+    target: "29.11 <span class='sep'>&ndash;</span> 29.50",
+    splits: [
+      { lbl: "", val: "No split &mdash; murni eksperimen untuk front speed 100 Fly", note: true }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Strategi",
+    steps: [
+      { seg: "35m awal", txt: "Hipo 3-1" },
+      { seg: "15m akhir", txt: "2-1" }
+    ],
+    gold: { tag: "Target Pembelajaran", txt: "Membiasakan diri berenang 29 dengan cara yang efisien buat front speed 100 Fly. Belajar berenang di 60&ndash;70% kemampuan tapi tetap dapat angka 29." },
+    reminder: "Ini bukan all-out test. Ini latihan ngerasain efisiensi &mdash; angka 29 dengan effort yang gak penuh."
+  },
+  {
+    idx: "07", dist: "50m", style: "Gaya Bebas", short: "26.30",
+    target: "26.30 <span class='sep'>&ndash;</span> 26.91",
+    splits: [
+      { lbl: "Split 15m", val: "6.30" },
+      { lbl: "Split 25m", val: "12.00" },
+      { lbl: "Split 35m", val: "17.80" }
+    ],
+    splitTitle: "Pace / Split",
+    stepsTitle: "Strategi",
+    steps: [
+      { seg: "Napas", txt: "1 kali napas, ambil di 37.5m." },
+      { seg: "Underwater", txt: "Maksimalkan power underwater." },
+      { seg: "4 stroke akhir", txt: "Lempar pake seluruh badan &mdash; feel-nya harus kerasa kayak over reach." }
+    ],
+    reminder: "Nomor pamungkas. Tahan napas sampai 37.5m, satu tarikan udara, lalu lempar badan penuh di 4 stroke terakhir."
+  }
+];
+
+const menu = document.getElementById('menu');
+const detail = document.getElementById('detail');
+const menuList = document.getElementById('menuList');
+const detailBody = document.getElementById('detailBody');
+const dcount = document.getElementById('dcount');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+let current = 0;
+
+// Build menu
+EVENTS.forEach((ev, i) => {
+  const item = document.createElement('div');
+  item.className = 'menu-item';
+  item.innerHTML = `
+    <div class="idx">${ev.idx}</div>
+    <div class="mi-text">
+      <div class="mi-event">${ev.dist}</div>
+      <div class="mi-style">${ev.style}</div>
+    </div>
+    <div class="mi-target">
+      <div class="tlbl">Target</div>
+      <div class="tval">${ev.short}</div>
+    </div>
+    <div class="chev">&rsaquo;</div>
+  `;
+  item.addEventListener('click', () => openDetail(i));
+  menuList.appendChild(item);
+});
+
+function renderDetail(i) {
+  const ev = EVENTS[i];
+  let splitsHTML = ev.splits.map(s =>
+    `<div class="split-box${s.note ? ' note' : ''}">
+      ${s.lbl ? `<div class="lbl">${s.lbl}</div>` : ''}
+      <div class="val">${s.val}</div>
+    </div>`
+  ).join('');
+
+  let stepsHTML = ev.steps.map(s =>
+    `<div class="step"><span class="seg">${s.seg}</span><p>${s.txt}</p></div>`
+  ).join('');
+
+  let goldHTML = ev.gold ?
+    `<div class="gold-block"><div class="tag">${ev.gold.tag}</div><p>${ev.gold.txt}</p></div>` : '';
+  let cautionHTML = ev.caution ?
+    `<div class="caution"><div class="tag">${ev.caution.tag}</div><p>${ev.caution.txt}</p></div>` : '';
+
+  detailBody.innerHTML = `
+    <div class="card-inner">
+      <div class="num-tag"><span class="idx">${ev.idx}</span> NOMOR LOMBA</div>
+      <h1 class="event">${ev.dist}<span class="style">${ev.style}</span></h1>
+      <div class="divider"></div>
+      <div class="target-band">
+        <div class="lbl">Range Target Time</div>
+        <div class="range">${ev.target}</div>
+      </div>
+      <div class="section-lbl">${ev.splitTitle}</div>
+      <div class="splits">${splitsHTML}</div>
+      <div class="section-lbl">${ev.stepsTitle}</div>
+      <div class="strategy-steps">${stepsHTML}</div>
+      ${cautionHTML}
+      ${goldHTML}
+      <div class="reminder"><div class="icon">&#127919;</div><p>${ev.reminder}</p></div>
+    </div>
+  `;
+  dcount.textContent = `${i + 1} / ${EVENTS.length}`;
+  prevBtn.disabled = (i === 0);
+  nextBtn.disabled = (i === EVENTS.length - 1);
+}
+
+function openDetail(i) {
+  current = i;
+  renderDetail(i);
+  menu.classList.add('hidden');
+  detail.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function closeDetail() {
+  detail.classList.remove('active');
+  menu.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('backBtn').addEventListener('click', closeDetail);
+prevBtn.addEventListener('click', () => { if (current > 0) { current--; renderDetail(current); detail.classList.remove('active'); void detail.offsetWidth; detail.classList.add('active'); window.scrollTo(0,0); } });
+nextBtn.addEventListener('click', () => { if (current < EVENTS.length - 1) { current++; renderDetail(current); detail.classList.remove('active'); void detail.offsetWidth; detail.classList.add('active'); window.scrollTo(0,0); } });
+</script>
+
+</body>
+</html>
