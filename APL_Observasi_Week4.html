@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#111">
+<title>APL Sprint Lab — Observasi Week 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f2f2f7;
+  --card: #fff;
+  --card2: #f4f4f7;
+  --border: #e3e3e8;
+  --text: #1c1c1e;
+  --text2: #8e8e93;
+  --text3: #b0b0b5;
+  --accent: #0a84ff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000; --card: #1c1c1e; --card2: #2a2a2c;
+    --border: #3a3a3c; --text: #f2f2f7; --text2: #8e8e93; --text3: #5a5a5e;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; color: inherit; }
+
+.wrap { max-width: 520px; margin: 0 auto; padding: 16px 14px 40px; }
+
+header { margin: 4px 2px 16px; }
+.h-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 25px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+.h-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.save-flag { font-size: 11px; color: #34c759; font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+.save-flag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #34c759; }
+
+.sel-row { display: flex; gap: 7px; overflow-x: auto; padding: 2px 2px 10px; margin-bottom: 4px; scrollbar-width: none; }
+.sel-row::-webkit-scrollbar { display: none; }
+.sel-pill {
+  flex: 0 0 auto; padding: 9px 14px; border-radius: 11px; background: var(--card);
+  border: 1.5px solid var(--border); font-size: 14px; font-weight: 700; white-space: nowrap;
+  display: flex; align-items: center; gap: 7px; position: relative;
+}
+.sel-pill .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pc); }
+.sel-pill.on { border-color: var(--pc); background: color-mix(in srgb, var(--pc) 10%, var(--card)); }
+.sel-pill .tick { color: #34c759; font-size: 12px; margin-left: 1px; }
+
+.now { display: flex; align-items: center; gap: 11px; margin: 10px 2px 16px; }
+.now-chip { width: 42px; height: 42px; border-radius: 12px; background: var(--cur); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 16px; }
+.now-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.now-meta { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+.sec { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 13px; }
+.sec-h { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.sec-hint { font-size: 11.5px; color: var(--text2); margin-bottom: 12px; line-height: 1.35; }
+
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fld label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+.seg { display: flex; background: var(--card2); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { flex: 1; padding: 9px 4px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text2); }
+.seg button.on { background: var(--cur); color: #fff; }
+select.sel-input { width: 100%; padding: 11px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); font-size: 14px; font-weight: 600; -webkit-appearance: none; appearance: none; }
+
+.single { display: flex; align-items: center; gap: 10px; }
+.single input { flex: 1; }
+.unit { font-size: 13px; color: var(--text2); font-weight: 600; }
+
+table.dt { width: 100%; border-collapse: collapse; }
+table.dt th { font-size: 11px; font-weight: 700; color: var(--text2); padding: 0 3px 8px; text-align: center; }
+table.dt th.l { text-align: left; }
+table.dt td { padding: 4px 3px; }
+table.dt td.l { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; padding-right: 8px; }
+
+.inp { width: 100%; text-align: center; padding: 12px 4px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); font-size: 16px; font-weight: 600; }
+.inp:focus { outline: none; border-color: var(--cur); background: var(--card); }
+textarea.inp { text-align: left; min-height: 74px; resize: vertical; line-height: 1.4; font-weight: 500; font-size: 15px; }
+
+.nav { display: flex; gap: 10px; margin: 4px 0 18px; }
+.nav button { flex: 1; background: var(--card); border: 1px solid var(--border); padding: 13px; border-radius: 12px; font-weight: 700; font-size: 14px; }
+.nav button:disabled { opacity: 0.35; }
+
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.actions .full { grid-column: 1 / -1; }
+.btn { padding: 14px; border-radius: 13px; font-weight: 700; font-size: 14px; text-align: center; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+.btn-danger { background: var(--card); border: 1px solid var(--border); color: #ff3b30; }
+
+.toast { position: fixed; bottom: calc(22px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(18px); background: #1c1c1e; color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; opacity: 0; transition: 0.25s; pointer-events: none; z-index: 50; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; z-index: 60; }
+.modal.show { display: flex; }
+.modal-card { background: var(--card); width: 100%; max-width: 520px; margin: 0 auto; border-radius: 20px 20px 0 0; padding: 18px 14px calc(18px + env(safe-area-inset-bottom)); max-height: 82vh; display: flex; flex-direction: column; }
+.modal-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 19px; font-weight: 800; margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+.modal textarea { width: 100%; flex: 1; min-height: 240px; padding: 13px; border-radius: 12px; border: 1px solid var(--border); background: var(--card2); font-size: 12px; font-family: ui-monospace, Menlo, monospace; line-height: 1.5; resize: none; margin-bottom: 12px; }
+
+@media print {
+  .sel-row, .now-chip, .nav, .actions, .save-flag { display: none !important; }
+  body { background: #fff; }
+  .sec { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="h-title">Observasi Week 4</div>
+    <div class="h-sub">Start Power Complex · APL Sprint Lab</div>
+    <div class="save-flag">Auto-save aktif</div>
+  </header>
+
+  <div class="sel-row" id="selRow"></div>
+
+  <div class="now">
+    <div class="now-chip" id="nowChip"></div>
+    <div>
+      <div class="now-name" id="nowName"></div>
+      <div class="now-meta" id="nowMeta"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">Setup Sesi</div>
+    <div class="meta-grid" style="margin-bottom:10px">
+      <div class="fld">
+        <label>Tanggal</label>
+        <div class="seg" id="segTanggal">
+          <button data-v="27 Juni">27 Jun</button>
+          <button data-v="4 Juli">4 Jul</button>
+        </div>
+      </div>
+      <div class="fld">
+        <label>Gelombang</label>
+        <div class="seg" id="segGelombang">
+          <button data-v="1">1</button>
+          <button data-v="2">2</button>
+        </div>
+      </div>
+    </div>
+    <div class="meta-grid">
+      <div class="fld">
+        <label>Pasangan</label>
+        <select class="sel-input" id="selPasangan">
+          <option value="">—</option><option>A&amp;B</option><option>C&amp;D</option><option>E&amp;F</option><option>G&amp;H</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Posisi start</label>
+        <select class="sel-input" id="selPosisi">
+          <option value="">—</option><option>Pertama</option><option>Kedua</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">Dryland Power</div>
+    <div class="sec-hint">Broad jump, ambil round 1 saja</div>
+    <div class="single">
+      <input class="inp" id="broadJump" inputmode="decimal" placeholder="0">
+      <span class="unit">cm</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">Start Baseline</div>
+    <div class="sec-hint">3x 15m dari dive, sebelum PAP · satuan detik</div>
+    <table class="dt">
+      <thead><tr><th class="l"></th><th>Rep 1</th><th>Rep 2</th><th>Rep 3</th></tr></thead>
+      <tbody><tr>
+        <td class="l">15m</td>
+        <td><input class="inp" id="base0" inputmode="decimal" placeholder="—"></td>
+        <td><input class="inp" id="base1" inputmode="decimal" placeholder="—"></td>
+        <td><input class="inp" id="base2" inputmode="decimal" placeholder="—"></td>
+      </tr></tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">Main Set A · Post-PAP</div>
+    <div class="sec-hint">5 round · 25m MAX dari dive · split 15m + total 25m (detik)</div>
+    <table class="dt">
+      <thead><tr><th class="l">Round</th><th>Split 15m</th><th>Total 25m</th></tr></thead>
+      <tbody id="msaRows"></tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h">Catatan Coach</div>
+    <div class="sec-hint">Opsional · temuan menonjol saja</div>
+    <textarea class="inp" id="notes" placeholder="cth: power kick lemah saat resistance, teknik collapse di round 4-5..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button id="prevBtn" onclick="navAthlete(-1)">← Sebelumnya</button>
+    <button id="nextBtn" onclick="navAthlete(1)">Berikutnya →</button>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="openExport('text')">Export Data</button>
+    <button class="btn btn-ghost" onclick="openExport('md')">Export Laporan (.md)</button>
+    <button class="btn btn-ghost" onclick="window.print()">Print / PDF</button>
+    <button class="btn btn-danger" onclick="resetAll()">Reset</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="exportModal">
+  <div class="modal-card">
+    <div class="modal-title" id="exportTitle">Export Data</div>
+    <div class="modal-sub" id="exportSub">Copy teks ini lalu paste ke chat untuk dijadikan laporan</div>
+    <textarea id="exportText" readonly></textarea>
+    <div class="actions" id="exportActions">
+      <button class="btn btn-ghost" onclick="closeExport()">Tutup</button>
+      <button class="btn btn-primary" onclick="copyExport()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ATHLETES = [
+  { name: 'Avissa', init: 'AV', c: '#FF6B6B' },
+  { name: 'Tata',   init: 'TA', c: '#4ECDC4' },
+  { name: 'Reva',   init: 'RV', c: '#A78BFA' },
+  { name: 'Joshua', init: 'JO', c: '#FFB84D' },
+  { name: 'Tasha',  init: 'TS', c: '#F472B6' },
+  { name: 'Saniya', init: 'SA', c: '#60A5FA' },
+  { name: 'Dora',   init: 'DO', c: '#34D399' },
+  { name: 'Rendra', init: 'RE', c: '#FB923C' },
+];
+const ROUNDS = 5;
+const STORE = 'apl_obs_week4';
+let data = load();
+let current = 0;
+
+function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(data)); } catch { toast('Gagal menyimpan'); } }
+
+function rec(i) {
+  if (!data[i]) data[i] = { tanggal:'', gelombang:'', pasangan:'', posisi:'', broadJump:'', base:['','',''], msa:[], notes:'' };
+  if (!data[i].msa || data[i].msa.length !== ROUNDS) {
+    data[i].msa = Array.from({length:ROUNDS}, (_,k)=> (data[i].msa && data[i].msa[k]) || {split:'', total:''});
+  }
+  return data[i];
+}
+function hasData(i) {
+  const r = data[i]; if (!r) return false;
+  return !!(r.broadJump || (r.base||[]).some(x=>x) || (r.msa||[]).some(m=>m.split||m.total) || r.notes || r.tanggal || r.pasangan);
+}
+
+function renderSelector() {
+  const row = document.getElementById('selRow');
+  row.innerHTML = '';
+  ATHLETES.forEach((a, i) => {
+    const b = document.createElement('button');
+    b.className = 'sel-pill' + (i === current ? ' on' : '');
+    b.style.setProperty('--pc', a.c);
+    b.onclick = () => selectAthlete(i);
+    b.innerHTML = '<span class="dot"></span>' + a.name + (hasData(i) ? '<span class="tick">✓</span>' : '');
+    row.appendChild(b);
+  });
+}
+
+function selectAthlete(i) {
+  current = i;
+  rec(i);
+  const a = ATHLETES[i];
+  document.documentElement.style.setProperty('--cur', a.c);
+  const chip = document.getElementById('nowChip');
+  chip.textContent = a.init;
+  chip.style.background = a.c;
+  document.getElementById('nowName').textContent = a.name;
+  document.getElementById('nowMeta').textContent = 'Atlet ' + (i+1) + ' dari ' + ATHLETES.length;
+  buildMsaRows();
+  fillForm(i);
+  bindForm(i);
+  document.getElementById('prevBtn').disabled = i === 0;
+  document.getElementById('nextBtn').disabled = i === ATHLETES.length - 1;
+  renderSelector();
+  const pill = document.querySelectorAll('.sel-pill')[i];
+  if (pill) pill.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+}
+
+function buildMsaRows() {
+  const tb = document.getElementById('msaRows');
+  tb.innerHTML = '';
+  for (let k = 0; k < ROUNDS; k++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td class="l">R' + (k+1) + '</td>' +
+      '<td><input class="inp" data-msa="split" data-k="' + k + '" inputmode="decimal" placeholder="—"></td>' +
+      '<td><input class="inp" data-msa="total" data-k="' + k + '" inputmode="decimal" placeholder="—"></td>';
+    tb.appendChild(tr);
+  }
+}
+
+function fillForm(i) {
+  const r = rec(i);
+  setSeg('segTanggal', r.tanggal);
+  setSeg('segGelombang', r.gelombang);
+  document.getElementById('selPasangan').value = r.pasangan || '';
+  document.getElementById('selPosisi').value = r.posisi || '';
+  document.getElementById('broadJump').value = r.broadJump || '';
+  document.getElementById('base0').value = r.base[0] || '';
+  document.getElementById('base1').value = r.base[1] || '';
+  document.getElementById('base2').value = r.base[2] || '';
+  document.getElementById('notes').value = r.notes || '';
+}
+function setSeg(id, val) {
+  document.querySelectorAll('#'+id+' button').forEach(b => b.classList.toggle('on', b.dataset.v === val));
+}
+
+function bindForm(i) {
+  const r = rec(i);
+  document.querySelectorAll('#segTanggal button').forEach(b => {
+    b.onclick = () => { r.tanggal = b.dataset.v; setSeg('segTanggal', r.tanggal); save(); renderSelector(); };
+  });
+  document.querySelectorAll('#segGelombang button').forEach(b => {
+    b.onclick = () => { r.gelombang = b.dataset.v; setSeg('segGelombang', r.gelombang); save(); };
+  });
+  document.getElementById('selPasangan').onchange = e => { r.pasangan = e.target.value; save(); };
+  document.getElementById('selPosisi').onchange = e => { r.posisi = e.target.value; save(); };
+  document.getElementById('broadJump').oninput = e => { r.broadJump = e.target.value; save(); renderSelector(); };
+  ['base0','base1','base2'].forEach((id, idx) => {
+    document.getElementById(id).oninput = e => { r.base[idx] = e.target.value; save(); renderSelector(); };
+  });
+  document.querySelectorAll('[data-msa]').forEach(inp => {
+    const k = +inp.dataset.k, f = inp.dataset.msa;
+    inp.value = r.msa[k][f] || '';
+    inp.oninput = e => { r.msa[k][f] = e.target.value; save(); renderSelector(); };
+  });
+  document.getElementById('notes').oninput = e => { r.notes = e.target.value; save(); renderSelector(); };
+}
+
+function navAthlete(dir) {
+  const ni = current + dir;
+  if (ni < 0 || ni >= ATHLETES.length) return;
+  selectAthlete(ni);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildExport() {
+  let out = 'APL OBSERVASI WEEK 4 — Start Power Complex\n==========================================\n\n';
+  ATHLETES.forEach((a, i) => {
+    const r = data[i];
+    out += '### ' + a.name + '\n';
+    if (!r || !hasData(i)) { out += 'Belum ada data.\n\n'; return; }
+    const setup = [r.tanggal&&'Tanggal: '+r.tanggal, r.gelombang&&'Gelombang: '+r.gelombang, r.pasangan&&'Pasangan: '+r.pasangan, r.posisi&&'Posisi: '+r.posisi].filter(Boolean).join(' | ');
+    if (setup) out += setup + '\n';
+    out += 'Broad jump: ' + (r.broadJump || '-') + ' cm\n';
+    out += 'Baseline 15m: ' + (r.base||[]).map(x=>x||'-').join(' / ') + '\n';
+    out += 'Main Set A (split 15m / total 25m):\n';
+    (r.msa||[]).forEach((m, k) => { out += '  R' + (k+1) + ': ' + (m.split||'-') + ' / ' + (m.total||'-') + '\n'; });
+    if (r.notes) out += 'Catatan: ' + r.notes + '\n';
+    out += '\n';
+  });
+  return out;
+}
+
+function buildExportMd() {
+  const today = new Date().toISOString().slice(0,10);
+  let out = '# APL Observasi Week 4 — Start Power Complex\n\n';
+  out += '_Diekspor: ' + today + '_\n\n';
+  out += '---\n\n';
+  ATHLETES.forEach((a, i) => {
+    const r = data[i];
+    out += '## ' + a.name + '\n\n';
+    if (!r || !hasData(i)) { out += '_Belum ada data._\n\n---\n\n'; return; }
+
+    out += '**Setup sesi**\n\n';
+    out += '| Tanggal | Gelombang | Pasangan | Posisi |\n';
+    out += '|---|---|---|---|\n';
+    out += '| ' + (r.tanggal||'-') + ' | ' + (r.gelombang||'-') + ' | ' + (r.pasangan||'-') + ' | ' + (r.posisi||'-') + ' |\n\n';
+
+    out += '**Dryland Power**\n\n';
+    out += 'Broad jump (round 1): ' + (r.broadJump||'-') + ' cm\n\n';
+
+    out += '**Start Baseline** _(15m dari dive, sebelum PAP)_\n\n';
+    out += '| Rep 1 | Rep 2 | Rep 3 |\n|---|---|---|\n';
+    out += '| ' + (r.base[0]||'-') + ' | ' + (r.base[1]||'-') + ' | ' + (r.base[2]||'-') + ' |\n\n';
+
+    out += '**Main Set A — Post-PAP** _(split 15m / total 25m)_\n\n';
+    out += '| Round | Split 15m | Total 25m |\n|---|---|---|\n';
+    (r.msa||[]).forEach((m, k) => {
+      out += '| R' + (k+1) + ' | ' + (m.split||'-') + ' | ' + (m.total||'-') + ' |\n';
+    });
+    out += '\n';
+
+    if (r.notes) out += '**Catatan coach**\n\n' + r.notes + '\n\n';
+    out += '---\n\n';
+  });
+  return out;
+}
+
+let exportMode = 'text';
+function openExport(mode) {
+  exportMode = mode || 'text';
+  const actions = document.getElementById('exportActions');
+  if (exportMode === 'md') {
+    document.getElementById('exportTitle').textContent = 'Export Laporan (.md)';
+    document.getElementById('exportSub').textContent = 'Markdown terstruktur, siap jadi dasar laporan atau di-download';
+    document.getElementById('exportText').value = buildExportMd();
+    actions.innerHTML = '<button class="btn btn-ghost" onclick="closeExport()">Tutup</button><button class="btn btn-ghost" onclick="copyExport()">Copy</button><button class="btn btn-primary full" onclick="downloadMd()">Download .md</button>';
+  } else {
+    document.getElementById('exportTitle').textContent = 'Export Data';
+    document.getElementById('exportSub').textContent = 'Copy teks ini lalu paste ke chat untuk dijadikan laporan';
+    document.getElementById('exportText').value = buildExport();
+    actions.innerHTML = '<button class="btn btn-ghost" onclick="closeExport()">Tutup</button><button class="btn btn-primary" onclick="copyExport()">Copy</button>';
+  }
+  document.getElementById('exportModal').classList.add('show');
+}
+function closeExport() { document.getElementById('exportModal').classList.remove('show'); }
+function copyExport() {
+  const t = document.getElementById('exportText');
+  t.select(); t.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(t.value).then(()=>toast('Tersalin')).catch(()=>{ document.execCommand('copy'); toast('Tersalin'); });
+}
+function downloadMd() {
+  const blob = new Blob([document.getElementById('exportText').value], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'APL_Observasi_Week4_' + new Date().toISOString().slice(0,10) + '.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('File .md diunduh');
+}
+function resetAll() {
+  if (!confirm('Hapus semua data observasi Week 4? Tidak bisa dibatalkan.')) return;
+  data = {}; save(); selectAthlete(0); toast('Data direset');
+}
+
+let tt;
+function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('show'), 1600); }
+
+selectAthlete(0);
+</script>
+</body>
+</html>
