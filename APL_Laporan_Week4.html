@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APL Sprint Lab — Laporan Week 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f3efe6;
+  --surface: #ffffff;
+  --border: #e4ddd0;
+  --text-primary: #22201c;
+  --text-secondary: #55504a;
+  --text-muted: #8a8377;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, #ded6c4 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* ---------- SELECTOR ---------- */
+#selector-page { max-width: 720px; margin: 0 auto; padding: 48px 20px 60px; }
+.selector-header { text-align: center; margin-bottom: 36px; }
+.program-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.selector-header h1 { font-family: var(--font-display); font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+.session-tag { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; }
+
+.athlete-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.athlete-btn {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px 16px; text-align: left; position: relative; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 16px rgba(0,0,0,0.03);
+  transition: transform 0.15s ease;
+}
+.athlete-btn:active { transform: scale(0.98); }
+.accent-bar { position: absolute; top: 0; left: 0; width: 100%; height: 5px; }
+.initials { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #fff; margin: 6px 0 12px; }
+.athlete-btn .name { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+.athlete-btn .status-pill { font-size: 11.5px; color: var(--text-muted); }
+
+/* ---------- REPORT PAGE ---------- */
+#report-page { display: none; }
+.report-hero { padding: 40px 20px 26px; color: #fff; position: relative; }
+.hero-inner { max-width: 720px; margin: 0 auto; }
+.back-btn { color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600; margin-bottom: 18px; display: inline-flex; align-items: center; gap: 5px; }
+.hero-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; margin-bottom: 6px; }
+.hero-name { font-family: var(--font-display); font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+.hero-meta { font-size: 13.5px; opacity: 0.9; margin-top: 6px; }
+
+.tabs-wrap { background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+.tabs { max-width: 720px; margin: 0 auto; display: flex; gap: 4px; padding: 10px 20px 0; overflow-x: auto; }
+.tab-btn { padding: 10px 14px; font-size: 13.5px; font-weight: 600; color: var(--text-muted); border-radius: 10px 10px 0 0; white-space: nowrap; }
+.tab-btn.active { color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); border-bottom: none; }
+
+.tab-content { display: none; max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+.tab-content.active { display: block; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+.card h3 { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.card p { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 10px; }
+.card p:last-child { margin-bottom: 0; }
+
+.strength-chip { display: inline-flex; align-items: center; gap: 6px; background: #eef7f0; color: #2e7d4f; font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 20px; margin-bottom: 12px; }
+.strength-chip::before { content: "✓"; font-weight: 800; }
+
+.focus-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.focus-bar-row:last-child { margin-bottom: 0; }
+.focus-label { font-size: 13.5px; font-weight: 600; flex: 1; }
+.focus-segs { display: flex; gap: 3px; }
+.seg { width: 22px; height: 7px; border-radius: 4px; background: #e4ddd0; }
+.seg.on-utama { background: #e0604f; }
+.seg.on-sedang { background: #e0a72e; }
+.seg.on-baik { background: #4caf7d; }
+
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+.homework-block { margin-bottom: 18px; }
+.homework-block:last-child { margin-bottom: 0; }
+.homework-block h4 { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
+.hw-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; line-height: 1.55; }
+.hw-item:last-child { border-bottom: none; }
+.hw-check { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid #c9c1b2; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; transition: 0.15s; }
+.hw-check.checked { background: var(--acc); border-color: var(--acc); }
+.hw-text.checked-text { text-decoration: line-through; color: var(--text-muted); }
+
+.progress-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.progress-ring-num { font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.progress-sub { font-size: 12.5px; color: var(--text-muted); }
+
+.parent-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.parent-block h3 { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+.parent-block p { font-size: 14px; line-height: 1.75; color: var(--text-secondary); }
+
+.session-note-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin: 0 auto 0; max-width: 720px; }
+</style>
+</head>
+<body>
+
+<!-- SELECTOR -->
+<div id="selector-page">
+  <div class="selector-header">
+    <p class="program-label">Aquatic Performance Lab · Sprint Lab</p>
+    <h1>Laporan Week 4</h1>
+    <span class="session-tag">Start Power Complex · Batch 1</span>
+  </div>
+  <div class="athlete-grid" id="athleteGrid"></div>
+</div>
+
+<!-- REPORT -->
+<div id="report-page">
+  <div class="report-hero" id="reportHero">
+    <div class="hero-inner">
+      <button class="back-btn" onclick="goBack()">← Kembali</button>
+      <div class="hero-label">Sprint Lab · Week 4 · Batch 1</div>
+      <div class="hero-name" id="heroName"></div>
+      <div class="hero-meta" id="heroMeta"></div>
+    </div>
+  </div>
+
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="ringkasan" onclick="switchTab('ringkasan', this)">Ringkasan</button>
+      <button class="tab-btn" data-tab="profil" onclick="switchTab('profil', this)">Profil &amp; Fokus</button>
+      <button class="tab-btn" data-tab="homework" onclick="switchTab('homework', this)">Homework</button>
+      <button class="tab-btn" data-tab="orangtua" onclick="switchTab('orangtua', this)">Untuk Orang Tua</button>
+    </div>
+  </div>
+
+  <div class="tab-content active" id="tab-ringkasan"></div>
+  <div class="tab-content" id="tab-profil"></div>
+  <div class="tab-content" id="tab-homework"></div>
+  <div class="tab-content" id="tab-orangtua"></div>
+</div>
+
+<script>
+const SESSION_NOTE = {
+  title: "Tentang Sesi Week 4",
+  body: "Minggu ini kita ganti fokus latihan turn dengan Start Power Complex. Aku putuskan ini karena start adalah fondasi yang dampaknya jangka panjang, dan aku melihat lebih banyak ruang perbaikan di start dibanding turn untuk kelompok ini saat ini. Fokus sesi ini ada di dua hal: seberapa besar power yang bisa dikeluarkan anak-anak saat take off dari block, dan bagaimana tubuh mereka merespons setelah diberi stimulus resistance (pakai stretchcordz) sebelum sprint penuh. Target Week 4 sederhana, aku ingin tahu di titik mana masing-masing anak berada sekarang: apakah power sudah cukup tapi tekniknya yang menahan, atau power itu sendiri yang masih perlu dibangun. Itu yang menentukan arah latihan kita di minggu-minggu berikutnya."
+};
+
+const ATHLETES = {
+  avissa: {
+    name: "Avissa", init: "AV", color1: "#FF6B6B", color2: "#FF9B85",
+    status: "Fokus: Power",
+    strength: "Entry angle dan streamline sudah solid",
+    ringkasan: "Teknik entry dan streamline Avissa sudah bagus dan konsisten setiap kali lompat, ini bukan lagi yang perlu aku benerin. Yang masih jadi PR adalah power dari kakinya, lompatannya belum bisa jauh dan speed yang keluar dari lompatan itu masih rendah dibanding yang lain.",
+    focus: [{label:"Power kaki saat take off", level:"utama"},{label:"Entry angle", level:"baik"},{label:"Streamline", level:"baik"}],
+    indepth: "Kekuatan Avissa ada di teknik, entry angle dan posisi streamline-nya sudah rapi dan bisa diulang konsisten. Yang belum ada adalah tenaga dorong dari kaki saat take off dari block, dan ini kelihatan dari hasil lompat jauhnya yang masih di bawah rata-rata kelompok. Dalam race, start yang lambat berarti dia sudah kehilangan waktu sebelum badannya menyentuh air, dan di jarak pendek seperti 50m itu selisih yang lumayan berarti. Kabar baiknya, karena tekniknya sudah benar, begitu powernya naik, hasilnya akan langsung kelihatan di waktu 15m pertamanya. Ini salah satu kasus yang paling straightforward untuk diperbaiki karena cuma satu hal yang perlu dibangun.",
+    homework: {
+      dryland: { freq: "3x per minggu", items: [
+        "3-5 reps x 3 set Squat di 70-80% berat maksimal (target berat maksimal ideal: 1x berat badan)",
+        "3-5 reps x 3 set Deadlift di 70-80% berat maksimal (target berat maksimal ideal: 1.5x berat badan)",
+        "3-5 reps x 3 set Hip Thrust di 70-80% berat maksimal",
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump"
+      ]},
+      pool: { freq: null, items: [
+        "2-3 x 15m Start and Glide. Lakukan start, kunci posisi streamline, biarkan glide sampai benar-benar berhenti. Cek berhenti di meter berapa."
+      ]}
+    },
+    parent: "Avissa sedang di tahap membangun kekuatan dasar untuk start. Teknik dan bentuk tubuhnya sudah bagus, jadi peningkatan ke depan akan datang dari latihan kekuatan kaki yang konsisten di rumah, bukan dari mengubah cara dia bergerak."
+  },
+  tata: {
+    name: "Tata", init: "TA", color1: "#4ECDC4", color2: "#7FE0D8",
+    status: "Fokus: Sequencing & Power",
+    strength: "Entry angle membaik, mulai bisa pakai power saat lompat",
+    ringkasan: "Tata datang ke sesi ini setelah latihan pagi, jadi belum 100% fresh. Meski begitu entry angle-nya sudah lebih baik dari minggu lalu dan dia mulai bisa pakai tenaga saat lompat. Yang masih jadi tantangan, tenaganya belum cukup kuat, urutan gerak kakinya masih sering ketuker, dan posisi streamline-nya kebongkar begitu masuk air.",
+    focus: [{label:"Power kaki saat take off", level:"utama"},{label:"Urutan gerak start", level:"utama"},{label:"Streamline pasca-entry", level:"sedang"},{label:"Entry angle", level:"baik"}],
+    indepth: "Tata sedang menumpuk tiga hal yang perlu dibenerin bareng. Pertama, tenaga dari kakinya masih kurang, ini bukan tentang teknik tapi memang kekuatan yang perlu dibangun. Kedua, urutan gerak kakinya sering ketuker, kadang kaki depan yang nendang kuat tapi kaki belakang lupa, kadang sebaliknya, dan itu bikin sudut masuknya jadi terlalu datar. Ketiga, begitu masuk air, posisi streamline-nya berubah, kepalanya naik sejajar sama tangan padahal harusnya tetap di bawah, dan itu bikin dia kehilangan kecepatan sebelum sempat breakout. Tiga masalah ini saling numpuk, jadi walaupun salah satu membaik, dua lainnya masih nahan hasilnya. Yang paling cepat bisa diperbaiki sebenarnya urutan gerak, itu soal kebiasaan dan ingatan otot, bukan soal kekuatan, jadi itu yang aku prioritaskan duluan sambil kekuatannya terus dibangun pelan-pelan.",
+    homework: {
+      dryland: { freq: "Setiap hari", items: [
+        "8-12 reps x 4 set tiap kaki Bulgarian Split Squat",
+        "8-12 reps x 4 set Glute Bridge",
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump",
+        "5 reps Staggered Stance Jump (posisi kaki depan-belakang seperti start, tangan di pinggang, pinggang mundur badan menunduk jaga punggung lurus, tekuk lutut depan-belakang sedikit, lalu lompat tinggi)"
+      ]},
+      pool: { freq: null, items: [
+        "2-3 x 15m Start and Glide, kunci streamline dan biarkan glide sampai berhenti, cek berhenti di meter berapa",
+        "Ingat cue urutan start: kaki depan lompat, kaki belakang tendang tinggi, streamline"
+      ]}
+    },
+    parent: "Tata masih perlu banyak kerja di sisi power, itu memang belum kuat sekarang. Kabar baiknya, sudut masuknya membaik dan dia sudah mulai bisa pakai tenaga saat lompat meski belum optimal. Masih ada beberapa hal di gerakan startnya yang perlu diluruskan urutannya, jadi dukungan terbaik dari rumah adalah bantu dia latihan drill sederhana secara rutin sambil kekuatannya terus dibangun."
+  },
+  reva: {
+    name: "Reva", init: "RV", color1: "#A78BFA", color2: "#C7B3FC",
+    status: "Tidak hadir",
+    absent: true,
+    ringkasan: "Reva tidak hadir di sesi Week 4 (baik tanggal 27 Juni maupun 4 Juli), jadi belum ada data yang bisa aku evaluasi minggu ini.",
+    homework: {
+      dryland: { freq: "3x seminggu", items: [
+        "8-12 reps x 4 set tiap kaki Bulgarian Split Squat",
+        "8-12 reps x 4 set RDL",
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump",
+        "5 reps Staggered Stance Jump (posisi kaki depan-belakang seperti start, tangan di pinggang, pinggang mundur badan menunduk jaga punggung lurus, tekuk lutut depan-belakang sedikit, lalu lompat tinggi)"
+      ]}
+    },
+    parent: "Reva tidak hadir di sesi Week 4. Bantu pastikan Reva bisa ikut full di tiap sesi pada fase berikutnya supaya tidak tertinggal, karena setiap minggu akan menjadi fondasi untuk di minggu-minggu selanjutnya."
+  },
+  joshua: {
+    name: "Joshua", init: "JO", color1: "#FFB84D", color2: "#FFD08A",
+    status: "Fokus: Core & Kontrol Tubuh",
+    strength: "Responsnya terhadap stimulus power terlihat bagus, waktu terbaik justru di rep-rep akhir",
+    ringkasan: "Joshua satu-satunya yang menyelesaikan seluruh rangkaian latihan hari itu (sesi terpisah tanggal 27 Juni), dan hasilnya menarik, rep pertama justru lebih lambat, tapi rep kedua sampai terakhir konsisten lebih cepat, dengan waktu terbaik di rep paling akhir. Tanda yang bagus kalau tubuhnya merespons latihan ini. Yang masih jadi PR, kontrol tubuhnya di udara dan saat masuk air.",
+    focus: [{label:"Kontrol core saat start", level:"utama"},{label:"Streamline & kembali ke posisi", level:"utama"},{label:"Respons terhadap power stimulus", level:"baik"}],
+    indepth: "Joshua punya sinyal bagus dari latihan hari ini, badannya butuh satu-dua rep untuk 'panas' dulu sebelum performanya keluar penuh, dan begitu itu terjadi hasilnya konsisten membaik sampai rep terakhir. Tapi PR utamanya sekarang ada di kontrol tubuh, badannya sering melengkung ke belakang atau membungkuk ke depan saat lompat, dia lupa mengunci perutnya (core) saat aba-aba mulai sehingga badannya miring waktu masuk air, dan posisi streamline-nya cepat berantakan begitu di bawah air. Intensitas renangnya hari ini juga terasa lebih rendah dari minggu-minggu sebelumnya, konsisten dengan badan yang masih sibuk menstabilkan diri, bukan berenang bebas. Dalam race, ini berarti dia kehilangan tenaga dan kecepatan bukan karena kurang kuat, tapi karena badannya belum terkontrol penuh di fase kritis start. Kalau core-nya sudah kuat dan terkunci otomatis, aku yakin start dan fase bawah airnya akan jadi jauh lebih konsisten dari rep ke rep, tidak perlu menunggu 'panas' dulu seperti sekarang.",
+    homework: {
+      dryland: { freq: "5x per minggu", items: [
+        "20-30 detik x 3-5 set Hollow Hold (perfect form dulu, jangan sampai ada lengkungan di pinggang, mulai dari 15-20 detik lalu naikkan bertahap)",
+        "20-30 detik x 3-5 set Superman",
+        "5x Counter Movement Jump with Streamline Finish (perhatikan titik landing harus sama dengan titik lompat, kalau geser berarti badan arching ke belakang atau membungkuk ke depan)"
+      ]},
+      pool: { freq: null, items: [
+        "2-3 x 15m Start and Glide, kunci streamline dan biarkan glide sampai berhenti, cek berhenti di meter berapa"
+      ]}
+    },
+    parent: "Joshua sedang bekerja membangun kestabilan tubuh (core) yang akan membuat posisi start dan streamline-nya lebih konsisten. Latihan core di rumah 5x seminggu akan mendukung progres ini secara langsung. Perlu sabar menjalani prosesnya, karena di kasus Joshua ada kebiasaan gerak yang harus diubah, dan itu butuh waktu. Yang penting bukan sekadar menyelesaikan jumlah repetisinya, tapi kualitas gerakan di setiap repetisi, jadi tolong bantu dampingi supaya fokusnya di form yang benar, bukan cuma selesai latihan."
+  },
+  tasha: {
+    name: "Tasha", init: "TS", color1: "#F472B6", color2: "#FBA5D3",
+    status: "Fokus: Menyalurkan Power",
+    strength: "Power lompatannya termasuk yang terbaik di kelompok",
+    ringkasan: "Power lompatan Tasha sebenarnya salah satu yang terbaik di kelompok. Tapi power itu belum tersalur ke start-nya, dan minggu ini dia satu-satunya yang justru sedikit lebih lambat setelah diberi stimulus tambahan, bukan lebih cepat. PR utamanya sekarang bukan menambah kekuatan, tapi belajar memakai kekuatan yang sudah ada dengan urutan gerak yang benar.",
+    focus: [{label:"Urutan gerak / sequencing", level:"utama"},{label:"Menyalurkan power ke start", level:"utama"},{label:"Power dasar", level:"baik"}],
+    indepth: "Tasha punya kekuatan kaki yang bagus, itu sudah kelihatan jelas dari hasil lompat jauhnya. Tapi ada gap besar antara kekuatan yang dia punya dan apa yang keluar saat start, dan itu paling kelihatan dari hasil minggu ini di mana dia jadi satu-satunya yang malah sedikit melambat setelah diberi stimulus power tambahan. Penyebabnya bukan fisik, tapi urutan gerak, kakinya sering ketuker antara mana yang menendang duluan, dan itu bikin tenaganya tidak tersalur maksimal. Kalau ini terus dibiarkan, dia akan terus jadi salah satu yang punya potensi paling besar tapi hasilnya belum keluar. Ini murni soal melatih urutan gerak jadi otomatis, begitu itu terkunci, aku yakin waktu startnya akan turun cukup signifikan karena tenaga dasarnya memang sudah ada, tinggal disalurkan dengan benar.",
+    homework: {
+      dryland: { freq: "Setiap hari setelah bangun tidur / sebelum latihan", items: [
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump",
+        "5 reps Staggered Stance Jump (posisi kaki depan-belakang seperti start, tangan di pinggang, pinggang mundur badan menunduk jaga punggung lurus, tekuk lutut depan-belakang sedikit, lalu lompat tinggi)"
+      ]},
+      pool: { freq: null, items: [
+        "2-3 x 15m Start and Glide, kunci streamline dan biarkan glide sampai berhenti, cek berhenti di meter berapa",
+        "Ingat cue urutan start: kaki depan lompat, kaki belakang tendang tinggi, streamline"
+      ]}
+    },
+    parent: "Tantangan Tasha sekarang adalah bagaimana dia mentransfer kekuatan yang sudah dia punya (kelihatan jelas dari hasil lompat jauhnya) ke start di kolam. Latihan otot tetap jalan, tapi prioritas minggu ini adalah melatih urutan gerak startnya supaya kekuatan yang sudah ada bisa benar-benar dipakai."
+  },
+  saniya: {
+    name: "Saniya", init: "SA", color1: "#60A5FA", color2: "#93C5FD",
+    status: "Fokus: Percaya Diri & Power",
+    strength: "Konsistensi start cukup baik saat dia berani berkomitmen penuh",
+    ringkasan: "Saniya masih terlihat ragu-ragu saat take off, kepalanya menunduk begitu dia mulai lompat dan itu bikin lompatannya jadi melengkung ke atas dulu, bukan langsung ke depan. Posisi streamline-nya juga lambat balik ke posisi rapat setelah lompat. Selain soal keberanian, power dasarnya juga masih perlu naik.",
+    focus: [{label:"Keberanian & rasa percaya pada kaki", level:"utama"},{label:"Power kaki", level:"utama"},{label:"Kembali ke streamline", level:"sedang"}],
+    indepth: "Ada dua hal yang jalan bareng di Saniya. Yang pertama, dan ini yang paling penting untuk dibenerin dulu, dia masih ragu-ragu memakai kakinya 100% saat take off, kepalanya menunduk begitu dia mulai lompat dan itu bikin lompatannya melengkung ke atas alih-alih lurus ke depan. Ini juga kelihatan jelas di latihan blastoff, dia tidak mau lompat 100%, dan di dorongan dari block-nya sendiri yang belum cukup kuat untuk membawa badannya jauh ke depan. Ini kemungkinan besar terkait pengalaman cedera yang pernah dia alami, jadi ini soal membangun kembali kepercayaan pada tubuhnya sendiri, bukan soal skill. Yang kedua, terpisah dari soal keberanian itu, power dasarnya juga memang belum di titik yang ideal, kelihatan dari hasil lompat jauhnya yang masih perlu naik. Dua hal ini penting dipisahkan karena kalau cuma fokus nambah kekuatan tapi keberaniannya belum pulih, dia tetap akan menahan diri dan powernya tidak akan pernah keluar penuh saat race. Prioritasnya sekarang membangun rasa percaya itu dulu lewat latihan yang membuatnya nyaman pakai kekuatan penuh, sambil tetap jalan membangun otot di sisi lain.",
+    homework: {
+      dryland: { freq: "3x seminggu", items: [
+        "8-12 reps x 4 set tiap kaki Bulgarian Split Squat",
+        "8-12 reps x 4 set RDL",
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump",
+        "5 reps Staggered Stance Jump (posisi kaki depan-belakang seperti start, tangan di pinggang, pinggang mundur badan menunduk jaga punggung lurus, tekuk lutut depan-belakang sedikit, lalu lompat tinggi)",
+        "Catatan: mulai berani dan percaya untuk pakai 100% power kakinya"
+      ]},
+      pool: { freq: null, items: [
+        "4x15m start dari dive dengan target visual jelas di ujung kolam (misal bendera warna), instruksi tunggal: lihat target, dan kembali ke posisi streamline sebelum menyentuh air",
+        "5 reps x 3 set Blastoff with Fins"
+      ]}
+    },
+    parent: "Secara fisik, kemampuan Saniya masih perlu terus naik, kekuatan kakinya belum di titik ideal. Tapi hambatan terbesarnya sekarang justru bukan di fisik, dia masih menahan diri untuk pakai 100% kekuatannya karena pengalaman cedera sebelumnya. Ini yang perlu dibenahi duluan dari sisi mindset dan rasa percaya diri, sambil kekuatan fisiknya terus dibangun berbarengan. Semangat tanpa terlalu banyak instruksi teknis akan sangat membantu di rumah."
+  },
+  dora: {
+    name: "Dora", init: "DO", color1: "#34D399", color2: "#6EE7B7",
+    status: "Fokus: Detail Halus",
+    strength: "Salah satu start tercepat dan paling konsisten di kelompok",
+    ringkasan: "Dora salah satu yang paling matang di kelompok ini, start-nya konsisten dan powernya sudah bagus. Yang tersisa sekarang cuma detail-detail halus, terutama posisi kepala saat breakout yang kadang masih tenggelam di dua kayuhan pertama.",
+    focus: [{label:"Posisi kepala saat breakout", level:"sedang"},{label:"Konsistensi jarak breakout", level:"sedang"},{label:"Power & konsistensi start", level:"baik"}],
+    indepth: "Dora sudah di level yang matang, power lompatannya bagus dan start-nya termasuk paling konsisten di kelompok. Fokus sekarang bukan lagi hal-hal dasar, tapi detail halus yang membedakan perenang bagus dengan perenang yang benar-benar elite. Yang paling kelihatan, kepalanya sering masih tenggelam di dua kayuhan pertama setelah breakout, padahal badan dan tangannya sudah keluar dengan timing yang pas. Ini juga kemungkinan berhubungan dengan jarak breakout-nya yang kadang tidak konsisten, rata-rata di 14 meter tapi kadang cuma sampai 12.5 meter, karena posisi kepala yang tidak optimal bisa mengurangi efisiensi tendangan bawah air. Di level Dora, detail sekecil ini yang menentukan selisih 0.1 sampai 0.2 detik saat race, jumlah yang berarti di kompetisi. Untuk memperbaikinya butuh kedisiplinan memperhatikan hal-hal kecil ini secara konsisten, bukan latihan kekuatan tambahan, karena fondasinya sudah kuat.",
+    homework: {
+      dryland: { freq: "1x per minggu", items: [
+        "3-5 reps x 3 set Squat di 70-80% berat maksimal (target: 1x berat badan)",
+        "3-5 reps x 3 set Deadlift di 70-80% berat maksimal (target: 1.5x berat badan)",
+        "3-5 reps x 3 set Hip Thrust di 70-80% berat maksimal",
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump"
+      ]},
+      dryland2: { freq: "3-5x per minggu", items: [
+        "15-30 reps x 2-3 set Pogo Jump, latihan ankle point dan ankle flex untuk menambah eksplosifitas lompatan",
+        "atau: 1 menit x 3 set Skipping, tiap 10 hitungan lakukan double jump (lompat tinggi sambil ayun tali skipping 2x lewat badan)"
+      ]},
+      pool: { freq: null, items: [
+        "2-3 x 15m push-off dengan fokus mendorong kepala naik saat mulai tarikan pertama, membangun konsistensi breakout yang bagus"
+      ]}
+    },
+    parent: "Dora sudah di level yang sangat baik. Catatan minggu ini soal detail-detail halus yang membedakan perenang bagus dari perenang elite, ini bagian normal dari perkembangan di level ini. Yang perlu dibangun sekarang justru kedisiplinan memperhatikan detail kecil ini secara konsisten."
+  },
+  rendra: {
+    name: "Rendra", init: "RE", color1: "#FB923C", color2: "#FDBA74",
+    status: "Fokus: Konsistensi Teknik",
+    strength: "Power lompatan terbaik di seluruh kelompok",
+    ringkasan: "Rendra punya power lompatan terbaik di seluruh kelompok, tapi hasil startnya masih naik turun, kadang sangat bagus kadang jauh di bawah standarnya sendiri. Penyebabnya bukan kekuatan, tapi teknik streamline yang belum terkunci konsisten.",
+    focus: [{label:"Konsistensi teknik & streamline", level:"utama"},{label:"Power kaki", level:"baik"}],
+    indepth: "Dari seluruh kelompok, Rendra punya power lompatan yang paling besar. Tapi kekuatan itu belum terkunci ke dalam teknik yang bisa diulang konsisten, kakinya sering masih terbuka saat masuk air, dan posisi streamline-nya melengkung ke belakang alih-alih lurus. Ini juga kelihatan pas latihan dryland, waktu diminta lompat vertikal dengan finishing streamline, posisi mendaratnya sering geser maju atau mundur, tandanya arah lompatannya tidak benar-benar lurus ke atas. Efeknya di kolam signifikan, saat bentuk lompatannya pas, 15m pertamanya bisa sangat cepat, tapi saat tidak pas, hasilnya jauh di bawah standarnya sendiri, bukan berarti dia jadi yang paling lambat di grup secara waktu absolut, tapi gap antara catatan tercepat dan terlambatnya jadi yang paling lebar di antara anak-anak dengan power tinggi. Jadi dari delapan anak, Rendra ini yang paling tidak butuh tambahan kekuatan lagi, powernya sudah lebih dari cukup. Yang dia butuhkan justru kedisiplinan mengunci teknik supaya kekuatan yang sudah ada bisa keluar konsisten setiap kali, bukan cuma sesekali.",
+    homework: {
+      dryland: { freq: "Setiap hari", items: [
+        "5x Counter Movement Jump with Streamline Finish (perhatikan titik landing harus sama dengan titik lompat, kalau geser berarti badan arching ke belakang atau membungkuk ke depan)",
+        "5 reps Staggered Stance Jump (posisi kaki depan-belakang seperti start, tangan di pinggang, pinggang mundur badan menunduk jaga punggung lurus, tekuk lutut depan-belakang sedikit, lalu lompat tinggi, perhatikan kaki harus rapat)"
+      ]},
+      dryland2: { freq: "1x per minggu", items: [
+        "3-5 reps x 3 set Squat di 70-80% berat maksimal (target: 1x berat badan)",
+        "3-5 reps x 3 set Deadlift di 70-80% berat maksimal (target: 1.5x berat badan)",
+        "3-5 reps x 3 set Hip Thrust di 70-80% berat maksimal",
+        "5 reps tiap kaki x 3 set Single Leg Vertical Jump"
+      ]},
+      pool: { freq: null, items: [
+        "2-3 x 15m start dari dive dengan checkpoint mental sebelum lompat: 'kaki rapat, badan lurus', evaluasi setelah tiap rep apakah checkpoint terpenuhi"
+      ]}
+    },
+    parent: "Rendra punya kekuatan lompatan yang sangat baik, salah satu yang terbaik di antara semua peserta. PR-nya sekarang adalah mengunci bentuk tubuh saat lompat supaya kekuatan itu tersalur konsisten setiap kali start, bukan cuma sesekali. Di antara semua peserta, justru konsistensi teknik Rendra yang paling perlu diperhatikan sekarang, jadi mulai perlu ada kedisiplinan memperhatikan detail-detail kecil di tekniknya."
+  }
+};
+
+let currentAthlete = null;
+const homeworkState = {};
+
+function levelWidth(level) { return level === "utama" ? 1 : level === "sedang" ? 2 : 3; }
+function levelClass(level) { return "on-" + level; }
+
+function renderGrid() {
+  const grid = document.getElementById('athleteGrid');
+  grid.innerHTML = '';
+  Object.keys(ATHLETES).forEach(key => {
+    const a = ATHLETES[key];
+    const btn = document.createElement('button');
+    btn.className = 'athlete-btn';
+    btn.onclick = () => openReport(key);
+    btn.innerHTML = `
+      <div class="accent-bar" style="background:linear-gradient(90deg, ${a.color1}, ${a.color2})"></div>
+      <div class="initials" style="background:${a.color1}">${a.init}</div>
+      <div class="name">${a.name}</div>
+      <div class="status-pill">${a.status}</div>`;
+    grid.appendChild(btn);
+  });
+}
+
+function openReport(key) {
+  currentAthlete = key;
+  const a = ATHLETES[key];
+  document.getElementById('selector-page').style.display = 'none';
+  document.getElementById('report-page').style.display = 'block';
+  document.getElementById('reportHero').style.background = `linear-gradient(135deg, ${a.color1}, ${a.color2})`;
+  document.getElementById('heroName').textContent = a.name;
+  document.getElementById('heroMeta').textContent = a.status;
+
+  if (a.absent) {
+    document.getElementById('tab-ringkasan').innerHTML = `<div class="card"><h3>Status Sesi</h3><p>${a.ringkasan}</p></div>`;
+    document.getElementById('tab-profil').innerHTML = `<div class="card"><p>Belum ada data untuk ditampilkan minggu ini.</p></div>`;
+    if (a.homework && a.homework.dryland) {
+      document.getElementById('tab-homework').innerHTML = `
+        <div class="card">
+          <div class="homework-block">
+            <h4>Dryland (Prioritas) · ${a.homework.dryland.freq}</h4>
+            ${a.homework.dryland.items.map(item => `
+              <div class="hw-item">
+                <div class="hw-check" style="--acc:${a.color1}" onclick="toggleHw('dryland', ${a.homework.dryland.items.indexOf(item)}, this)"></div>
+                <div class="hw-text">${item}</div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    } else {
+      document.getElementById('tab-homework').innerHTML = `<div class="card"><p>Belum ada penugasan homework minggu ini karena tidak ada sesi yang diikuti.</p></div>`;
+    }
+    document.getElementById('tab-orangtua').innerHTML = `<div class="parent-block"><h3>Untuk Orang Tua</h3><p>${a.parent || "Reva tidak hadir di sesi Week 4."}</p></div>`;
+    switchTab('ringkasan', document.querySelector('.tab-btn'));
+    window.scrollTo(0,0);
+    return;
+  }
+
+  document.getElementById('tab-ringkasan').innerHTML = `
+    <div class="strength-chip">${a.strength}</div>
+    <div class="card"><h3>Ringkasan Sesi</h3><p>${a.ringkasan}</p></div>
+  `;
+
+  document.getElementById('tab-profil').innerHTML = `
+    <div class="card">
+      <h3>Fokus Latihan</h3>
+      ${a.focus.map(f => `
+        <div class="focus-bar-row">
+          <span class="focus-label">${f.label}</span>
+          <div class="focus-segs">
+            ${[1,2,3].map(i => `<div class="seg ${i <= levelWidth(f.level) ? levelClass(f.level) : ''}"></div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <h3>Analisis Mendalam</h3>
+      <p>${a.indepth}</p>
+    </div>
+  `;
+
+  const hwBlocks = [];
+  if (a.homework.dryland) hwBlocks.push({ title: "Dryland (Prioritas)" + (a.homework.dryland.freq ? " · " + a.homework.dryland.freq : ""), items: a.homework.dryland.items, key: "dryland" });
+  if (a.homework.dryland2) hwBlocks.push({ title: "Dryland (Tambahan)" + (a.homework.dryland2.freq ? " · " + a.homework.dryland2.freq : ""), items: a.homework.dryland2.items, key: "dryland2" });
+  if (a.homework.pool) hwBlocks.push({ title: "Pool (Pendukung)", items: a.homework.pool.items, key: "pool" });
+
+  homeworkState[key] = homeworkState[key] || {};
+  const totalItems = hwBlocks.reduce((s, b) => s + b.items.length, 0);
+
+  document.getElementById('tab-homework').innerHTML = `
+    <div class="card">
+      <div class="progress-wrap">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="22" fill="none" stroke="#e4ddd0" stroke-width="6"/>
+          <circle id="progressCircle" cx="26" cy="26" r="22" fill="none" stroke="${a.color1}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${2*Math.PI*22}" stroke-dashoffset="${2*Math.PI*22}" transform="rotate(-90 26 26)"/>
+        </svg>
+        <div>
+          <div class="progress-ring-num" id="progressNum">0/${totalItems}</div>
+          <div class="progress-sub">selesai minggu ini</div>
+        </div>
+      </div>
+      ${hwBlocks.map(block => `
+        <div class="homework-block">
+          <h4>${block.title}</h4>
+          ${block.items.map((item, i) => `
+            <div class="hw-item">
+              <div class="hw-check" style="--acc:${a.color1}" onclick="toggleHw('${block.key}', ${i}, this)"></div>
+              <div class="hw-text">${item}</div>
+            </div>`).join('')}
+        </div>`).join('')}
+    </div>
+  `;
+
+  document.getElementById('tab-orangtua').innerHTML = `
+    <div class="parent-block">
+      <h3>Untuk Orang Tua</h3>
+      <p>${a.parent}</p>
+    </div>
+  `;
+
+  switchTab('ringkasan', document.querySelector('.tab-btn'));
+  window.scrollTo(0,0);
+}
+
+function toggleHw(blockKey, idx, el) {
+  const key = blockKey + '_' + idx;
+  const a = ATHLETES[currentAthlete];
+  homeworkState[currentAthlete][key] = !homeworkState[currentAthlete][key];
+  const checked = homeworkState[currentAthlete][key];
+  el.classList.toggle('checked', checked);
+  el.textContent = checked ? '✓' : '';
+  el.nextElementSibling.classList.toggle('checked-text', checked);
+
+  const allChecks = document.querySelectorAll('.hw-check');
+  const doneCount = Array.from(allChecks).filter(c => c.classList.contains('checked')).length;
+  const total = allChecks.length;
+  document.getElementById('progressNum').textContent = `${doneCount}/${total}`;
+  const circle = document.getElementById('progressCircle');
+  const circumference = 2 * Math.PI * 22;
+  circle.style.strokeDashoffset = circumference - (doneCount/total) * circumference;
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function goBack() {
+  document.getElementById('report-page').style.display = 'none';
+  document.getElementById('selector-page').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+renderGrid();
+
+// Session note prepended to selector page
+const noteEl = document.createElement('div');
+noteEl.className = 'session-note-card';
+noteEl.style.marginBottom = '20px';
+noteEl.innerHTML = `<h3 style="font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:10px;">${SESSION_NOTE.title}</h3><p style="font-size:14px;line-height:1.75;color:var(--text-secondary);">${SESSION_NOTE.body}</p>`;
+document.querySelector('#selector-page').insertBefore(noteEl, document.getElementById('athleteGrid'));
+</script>
+</body>
+</html>
