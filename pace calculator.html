@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace Split Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#000000;
+  --panel:#0D0D0F;
+  --raise:#141417;
+  --edge:#2A2A2E;
+  --edge-soft:#1C1C20;
+
+  --white:#FAFAFA;
+  --grey-1:#CDCDCF;
+  --grey-2:#939599;
+  --cyan:#2BCFCE;
+  --flame:#EC4D25;
+
+  --cyan-tint:rgba(43,207,206,.10);
+  --cyan-tint-2:rgba(43,207,206,.16);
+  --flame-tint:rgba(236,77,37,.10);
+  --flame-tint-2:rgba(236,77,37,.17);
+  --grey-tint:rgba(147,149,153,.10);
+
+  --display:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Quicksand",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--black);
+  color:var(--white);
+  font-family:var(--body);
+  font-weight:500;
+  font-size:15px;
+  line-height:1.55;
+  padding:0 0 72px;
+}
+.shell{max-width:1200px;margin:0 auto;padding:0 20px}
+
+/* ============ masthead ============ */
+.masthead{padding:48px 0 0}
+.masthead h1{
+  font-family:var(--display);
+  font-weight:800;
+  font-size:clamp(34px,6.4vw,62px);
+  line-height:.95;
+  letter-spacing:-.035em;
+}
+.masthead h1 em{font-style:normal;color:var(--cyan)}
+.blockrule{
+  display:grid;grid-template-columns:2fr 1.1fr 1.1fr 1.4fr 2.4fr;
+  height:10px;margin:28px 0 36px;
+}
+.blockrule i{display:block}
+.blockrule i:nth-child(1){background:var(--edge)}
+.blockrule i:nth-child(2){background:var(--grey-2)}
+.blockrule i:nth-child(3){background:var(--grey-1)}
+.blockrule i:nth-child(4){background:var(--cyan)}
+.blockrule i:nth-child(5){background:var(--flame)}
+
+/* ============ distance switch ============ */
+.modes{display:flex;margin-bottom:26px;width:fit-content;border:1.5px solid var(--grey-1)}
+.mode{
+  font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.1em;
+  background:transparent;border:0;color:var(--grey-1);
+  padding:13px 34px;cursor:pointer;transition:background .18s,color .18s;
+}
+.mode+.mode{border-left:1.5px solid var(--grey-1)}
+.mode[aria-selected="true"]{background:var(--grey-1);color:var(--black)}
+.mode:focus-visible{outline:3px solid var(--flame);outline-offset:3px}
+
+/* ============ entry panel ============ */
+.panel{background:var(--panel);border:1.5px solid var(--edge);padding:26px;margin-bottom:38px}
+.eyebrow{
+  font-family:var(--display);font-weight:700;font-size:11px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--grey-2);
+  margin-bottom:22px;
+}
+.entry{display:grid;grid-template-columns:1.5fr 1.2fr 1fr auto;gap:22px;align-items:end}
+@media(max-width:820px){.entry{grid-template-columns:1fr 1fr;gap:18px}}
+@media(max-width:520px){.entry{grid-template-columns:1fr}}
+.field label{
+  display:block;font-family:var(--display);font-weight:700;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--grey-2);margin-bottom:9px;
+}
+.field input,.field select{
+  width:100%;background:transparent;border:0;border-bottom:2px solid var(--edge);
+  color:var(--white);padding:8px 2px;font-family:var(--body);font-weight:600;font-size:17px;
+  border-radius:0;
+}
+.field select{
+  appearance:none;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--grey-1) 50%),linear-gradient(135deg,var(--grey-1) 50%,transparent 50%);
+  background-position:calc(100% - 11px) 19px,calc(100% - 6px) 19px;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:26px;
+}
+.field select option{background:var(--raise);color:var(--white)}
+#timeInput{font-family:var(--display);font-weight:600;letter-spacing:.02em}
+.field input:focus,.field select:focus{outline:0;border-bottom-color:var(--cyan)}
+.field input::placeholder{color:#4A4A4F}
+.hint{font-size:11.5px;color:var(--grey-2);margin-top:8px;font-weight:500}
+.btn{
+  font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;background:var(--flame);color:var(--white);
+  border:0;border-radius:0;padding:16px 30px;cursor:pointer;
+  white-space:nowrap;transition:background .18s;
+}
+.btn:hover{background:#FF5B31}
+.btn:focus-visible{outline:3px solid var(--white);outline-offset:3px}
+.err{color:var(--flame);font-size:13px;font-weight:600;margin-top:18px;min-height:20px}
+
+/* ============ results bar ============ */
+.results-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;margin-bottom:14px;
+}
+.results-head h2{
+  font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:-.01em;
+}
+.results-head h2 small{
+  font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--grey-2);margin-left:10px;
+}
+.actions{display:flex;gap:0;border:1.5px solid var(--edge)}
+.btn-ghost{
+  font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;background:transparent;color:var(--grey-2);
+  border:0;padding:10px 18px;cursor:pointer;transition:background .15s,color .15s;
+}
+.btn-ghost+.btn-ghost{border-left:1.5px solid var(--edge)}
+.btn-ghost:hover{background:var(--grey-1);color:var(--black)}
+.btn-ghost:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+
+/* ============ table ============ */
+.table-wrap{overflow-x:auto;border:1.5px solid var(--edge);background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:900px}
+thead th{
+  font-family:var(--display);font-weight:700;font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;
+  padding:13px 10px;text-align:center;white-space:nowrap;
+  background:var(--raise);color:var(--grey-1);
+}
+thead th.lft{text-align:left;padding-left:20px}
+thead th.g-fs{background:var(--cyan);color:var(--black)}
+thead th.g-bs{background:var(--flame);color:var(--white)}
+thead th.g-avg{background:var(--grey-2);color:var(--black)}
+thead tr.sub th{
+  font-size:9.5px;letter-spacing:.09em;padding:9px 10px;font-weight:600;
+  background:var(--raise);color:var(--grey-2);
+}
+thead tr.sub th.s-fs{background:var(--cyan-tint-2);color:var(--cyan)}
+thead tr.sub th.s-bs{background:var(--flame-tint-2);color:#FF7A55}
+thead tr.sub th span{display:block;font-weight:500;opacity:.7;letter-spacing:.04em;margin-top:2px}
+
+tbody td{
+  padding:14px 10px;text-align:center;
+  border-bottom:1px solid var(--edge-soft);
+  font-family:var(--display);font-weight:600;font-size:15px;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum";
+  color:var(--white);
+}
+tbody tr:last-child td{border-bottom:0}
+tbody td.c-fs{background:var(--cyan-tint);color:var(--cyan)}
+tbody td.c-bs{background:var(--flame-tint);color:#FF7A55}
+tbody td.c-avg{background:var(--grey-tint);color:var(--grey-1)}
+tbody tr:hover td{filter:brightness(1.25)}
+td.athlete{
+  text-align:left;padding-left:20px;font-family:var(--body);
+  font-weight:700;font-size:15px;white-space:nowrap;
+}
+td.target{font-weight:800;font-size:17px}
+.tag{
+  display:inline-block;font-family:var(--display);font-weight:700;font-size:9.5px;
+  letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;white-space:nowrap;
+  border:1.5px solid currentColor;
+}
+.tag-free{color:var(--cyan)}
+.tag-fly{color:var(--grey-2)}
+.tag-back{color:#FF7A55}
+.tag-breast{color:var(--grey-1)}
+.warn{color:var(--flame);font-size:11px;vertical-align:super;cursor:help;font-weight:800}
+.del{
+  background:transparent;border:0;color:var(--edge);font-size:22px;line-height:1;
+  cursor:pointer;padding:0 12px;font-family:var(--display);
+}
+.del:hover{color:var(--flame)}
+.del:focus-visible{outline:2px solid var(--flame);outline-offset:2px}
+.empty{padding:64px 24px;text-align:center;color:var(--grey-2);font-size:14px;font-family:var(--body);font-weight:500}
+.empty strong{
+  display:block;font-family:var(--display);font-weight:700;color:var(--white);
+  font-size:17px;margin-bottom:8px;letter-spacing:-.01em;
+}
+
+/* ============ method ============ */
+.method{margin-top:44px;border-top:3px solid var(--grey-1);padding-top:26px}
+.method h3{
+  font-family:var(--display);font-weight:800;font-size:11px;
+  letter-spacing:.22em;text-transform:uppercase;margin-bottom:22px;color:var(--white);
+}
+.method dl{display:grid;grid-template-columns:auto 1fr;gap:14px 26px;font-size:14px;max-width:78ch}
+.method dt{
+  font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.05em;
+  text-transform:uppercase;white-space:nowrap;color:var(--white);
+  border-left:4px solid var(--cyan);padding-left:12px;
+}
+.method dd{color:var(--grey-2);font-weight:500}
+.method dd b{color:var(--white);font-weight:700}
+.pct-strip{display:flex;flex-wrap:wrap;margin-top:26px;border:1.5px solid var(--edge)}
+.pct{flex:1 1 190px;padding:14px 16px;font-size:13px;color:var(--grey-2);font-weight:600}
+.pct+.pct{border-left:1.5px solid var(--edge)}
+.pct b{
+  display:block;font-family:var(--display);font-weight:800;font-size:12px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--white);margin-bottom:5px;
+}
+.footnote{margin-top:20px;font-size:13px;color:var(--grey-2);font-weight:500;max-width:78ch}
+.footnote b{color:var(--white);font-weight:700}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  .modes,.panel,.actions,.del,.method,.blockrule{display:none}
+  .masthead h1{color:#000}
+  .masthead h1 em{color:#000}
+  .results-head h2,.results-head h2 small{color:#000}
+  .table-wrap{border-color:#000;background:#fff}
+  table{min-width:0}
+  thead th{background:#eee!important;color:#000!important}
+  thead th.g-fs,thead th.g-bs,thead th.g-avg,thead tr.sub th{background:#ddd!important;color:#000!important}
+  tbody td{color:#000!important;background:#fff!important;border-bottom:1px solid #999}
+  .tag{color:#000!important}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <h1>Pace Split<br><em>Calculator</em></h1>
+    <div class="blockrule" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  </header>
+
+  <div class="modes" role="tablist" aria-label="Jarak nomor">
+    <button class="mode" role="tab" aria-selected="true" data-dist="100">100 M</button>
+    <button class="mode" role="tab" aria-selected="false" data-dist="200">200 M</button>
+  </div>
+
+  <section class="panel">
+    <div class="eyebrow" id="panelHead">Tambah atlet — nomor 100 m</div>
+    <div class="entry">
+      <div class="field">
+        <label for="nameInput">Nama atlet</label>
+        <input id="nameInput" type="text" placeholder="mis. Aza" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="eventInput">Nomor</label>
+        <select id="eventInput"></select>
+      </div>
+      <div class="field">
+        <label for="timeInput">Target waktu</label>
+        <input id="timeInput" type="text" placeholder="1:05.50" autocomplete="off" inputmode="decimal">
+        <div class="hint" id="rangeHint"></div>
+      </div>
+      <div class="field">
+        <button class="btn" id="addBtn">Hitung</button>
+      </div>
+    </div>
+    <div class="err" id="errMsg" role="alert"></div>
+  </section>
+
+  <div class="results-head">
+    <h2 id="resultsTitle">Target split<small>0 atlet</small></h2>
+    <div class="actions">
+      <button class="btn-ghost" id="csvBtn">Unduh CSV</button>
+      <button class="btn-ghost" id="printBtn">Cetak</button>
+      <button class="btn-ghost" id="clearBtn">Kosongkan</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="table"></table>
+  </div>
+
+  <section class="method">
+    <h3>Cara sistem menghitung</h3>
+    <div id="methodBody"></div>
+  </section>
+
+</div>
+
+<script>
+/* =======================================================================
+   MODEL 100 m — Swimming Australia SpeedChart (regresi linear)
+   nilai = intercept + slope × (target − base)
+   FS       : gun-based, dari start
+   50m BS   : Lembar 1 — race split lap 2 (gun-based)
+   25/35 BS : Lembar 2 — 2nd Lap Push Targets (feet-off wall)
+   ======================================================================= */
+const M100 = {
+  free:{
+    label:'100 Free', tag:'tag-free', base:45, lo:45, hi:60,
+    fs50:[21.56,0.503], fs25:[9.79,0.245], fs35:[14.40,0.345],
+    bs50:[23.44,0.497], bs25:[10.76,0.250], bs35:[15.75,0.349]
+  },
+  fly:{
+    label:'100 Fly', tag:'tag-fly', base:65, lo:65, hi:75,
+    fs50:[30.56,0.479], fs25:[14.21,0.243], fs35:[20.73,0.333],
+    bs50:[34.44,0.521], bs25:[16.48,0.261], bs35:[23.57,0.365]
+  },
+  back:{
+    label:'100 Back', tag:'tag-back', base:51, lo:51, hi:66,
+    fs50:[24.68,0.5073], fs25:[11.16,0.2627], fs35:[16.47,0.3587],
+    bs50:[26.32,0.4927], bs25:[11.99,0.2507], bs35:[17.66,0.3467]
+  },
+  breast:{
+    label:'100 Breast', tag:'tag-breast', base:72, lo:72, hi:82,
+    fs50:[33.97,0.491], fs25:[15.73,0.247], fs35:[23.07,0.342],
+    bs50:[38.03,0.509], bs25:[18.18,0.254], bs35:[26.08,0.356]
+  }
+};
+
+/* =======================================================================
+   MODEL 200 m — proporsi tiap 50 m terhadap target (total 100%)
+   Breast memakai versi adjusted untuk atlet development:
+   front 100 m digeser +2,5–3 detik dari model elite.
+   ======================================================================= */
+const M200 = {
+  free:  {label:'200 Free',  tag:'tag-free',  p:[0.2342,0.2537,0.2565,0.2556]},
+  fly:   {label:'200 Fly',   tag:'tag-fly',   p:[0.2255,0.2541,0.2573,0.2631]},
+  back:  {label:'200 Back',  tag:'tag-back',  p:[0.2350,0.2480,0.2590,0.2580]},
+  breast:{label:'200 Breast',tag:'tag-breast',p:[0.2370,0.2510,0.2590,0.2530]}
+};
+
+const lin = ([a,b], t, base) => a + b * (t - base);
+const $ = id => document.getElementById(id);
+
+function parseTime(raw){
+  const s = String(raw).trim().replace(',', '.');
+  if(!s) return null;
+  let m;
+  if((m = s.match(/^(\d{1,2}):(\d{1,2}(?:\.\d{1,2})?)$/))){
+    const sec = parseFloat(m[2]);
+    if(sec >= 60) return null;
+    return parseInt(m[1],10) * 60 + sec;
+  }
+  if((m = s.match(/^(\d{1,3}(?:\.\d{1,2})?)$/))) return parseFloat(m[1]);
+  return null;
+}
+
+function fmt(sec){
+  if(sec < 60) return sec.toFixed(2);
+  const m = Math.floor(sec / 60);
+  return m + ':' + (sec - m * 60).toFixed(2).padStart(5,'0');
+}
+
+let dist = 100;
+let rows = { 100: [], 200: [] };
+
+function fillEvents(){
+  const src = dist === 100 ? M100 : M200;
+  $('eventInput').innerHTML = Object.keys(src)
+    .map(k => `<option value="${k}">${src[k].label}</option>`).join('');
+  updateHint();
+}
+
+function updateHint(){
+  if(dist === 100){
+    const c = M100[$('eventInput').value];
+    $('rangeHint').textContent = `Rentang chart ${fmt(c.lo)}–${fmt(c.hi)}`;
+  }else{
+    $('rangeHint').textContent = 'Format m:ss.00 atau detik';
+  }
+}
+
+function calc100(key, t){
+  const c = M100[key];
+  return {
+    fs50: lin(c.fs50,t,c.base), fs25: lin(c.fs25,t,c.base), fs35: lin(c.fs35,t,c.base),
+    bs50: lin(c.bs50,t,c.base), bs25: lin(c.bs25,t,c.base), bs35: lin(c.bs35,t,c.base),
+    outOfRange: t < c.lo || t > c.hi
+  };
+}
+
+function calc200(key, t){
+  const s = M200[key].p.map(x => t * x);
+  return {
+    s1:s[0], s2:s[1], s3:s[2], s4:s[3],
+    front:s[0]+s[1], mid:s[1]+s[2], back:s[2]+s[3],
+    avg50:t/4, avg100:t/2
+  };
+}
+
+const HEAD_100 = `
+<thead>
+  <tr>
+    <th class="lft" rowspan="2">Atlet</th>
+    <th rowspan="2">Nomor</th>
+    <th rowspan="2">Target</th>
+    <th class="g-fs" colspan="3">Front Speed</th>
+    <th class="g-bs" colspan="3">Back Speed</th>
+    <th rowspan="2"></th>
+  </tr>
+  <tr class="sub">
+    <th class="s-fs">50 m FS<span>dari start</span></th>
+    <th class="s-fs">25 m FS<span>0–25 m</span></th>
+    <th class="s-fs">35 m FS<span>0–35 m</span></th>
+    <th class="s-bs">50 m BS<span>race split</span></th>
+    <th class="s-bs">25 m BS<span>push off</span></th>
+    <th class="s-bs">35 m BS<span>push off</span></th>
+  </tr>
+</thead>`;
+
+const HEAD_200 = `
+<thead>
+  <tr>
+    <th class="lft" rowspan="2">Atlet</th>
+    <th rowspan="2">Nomor</th>
+    <th rowspan="2">Target</th>
+    <th class="g-fs" colspan="4">Split tiap 50 m</th>
+    <th class="g-bs" colspan="3">Segmen 100 m</th>
+    <th class="g-avg" colspan="2">Pace rata-rata</th>
+    <th rowspan="2"></th>
+  </tr>
+  <tr class="sub">
+    <th class="s-fs">50 (1)<span>0–50</span></th>
+    <th class="s-fs">50 (2)<span>50–100</span></th>
+    <th class="s-fs">50 (3)<span>100–150</span></th>
+    <th class="s-fs">50 (4)<span>150–200</span></th>
+    <th class="s-bs">Front<span>(1)+(2)</span></th>
+    <th class="s-bs">Middle<span>(2)+(3)</span></th>
+    <th class="s-bs">Back<span>(3)+(4)</span></th>
+    <th>per 50 m</th>
+    <th>per 100 m</th>
+  </tr>
+</thead>`;
+
+function render(){
+  const list = rows[dist];
+  const tbl = $('table');
+
+  $('resultsTitle').innerHTML = `Target split<small>${list.length} atlet — ${dist} m</small>`;
+  $('panelHead').textContent = `Tambah atlet — nomor ${dist} m`;
+
+  if(!list.length){
+    tbl.innerHTML = `<tbody><tr><td class="empty" colspan="12">
+      <strong>Belum ada atlet</strong>
+      Isi nama, pilih nomor, masukkan target waktu, lalu tekan Hitung.
+    </td></tr></tbody>`;
+    return;
+  }
+
+  const body = list.map((r,i) => {
+    const cfg = (dist === 100 ? M100 : M200)[r.key];
+    const tag = `<span class="tag ${cfg.tag}">${cfg.label}</span>`;
+    const del = `<button class="del" data-i="${i}" aria-label="Hapus ${r.name}">×</button>`;
+
+    if(dist === 100){
+      const c = calc100(r.key, r.t);
+      const w = c.outOfRange ? '<span class="warn" title="Di luar rentang chart — nilai diekstrapolasi">*</span>' : '';
+      return `<tr>
+        <td class="athlete">${r.name}</td>
+        <td>${tag}</td>
+        <td class="target">${fmt(r.t)}${w}</td>
+        <td class="c-fs">${fmt(c.fs50)}</td><td class="c-fs">${fmt(c.fs25)}</td><td class="c-fs">${fmt(c.fs35)}</td>
+        <td class="c-bs">${fmt(c.bs50)}</td><td class="c-bs">${fmt(c.bs25)}</td><td class="c-bs">${fmt(c.bs35)}</td>
+        <td>${del}</td>
+      </tr>`;
+    }
+
+    const c = calc200(r.key, r.t);
+    return `<tr>
+      <td class="athlete">${r.name}</td>
+      <td>${tag}</td>
+      <td class="target">${fmt(r.t)}</td>
+      <td class="c-fs">${fmt(c.s1)}</td><td class="c-fs">${fmt(c.s2)}</td>
+      <td class="c-fs">${fmt(c.s3)}</td><td class="c-fs">${fmt(c.s4)}</td>
+      <td class="c-bs">${fmt(c.front)}</td><td class="c-bs">${fmt(c.mid)}</td><td class="c-bs">${fmt(c.back)}</td>
+      <td class="c-avg">${fmt(c.avg50)}</td><td class="c-avg">${fmt(c.avg100)}</td>
+      <td>${del}</td>
+    </tr>`;
+  }).join('');
+
+  tbl.innerHTML = (dist === 100 ? HEAD_100 : HEAD_200) + `<tbody>${body}</tbody>`;
+
+  tbl.querySelectorAll('.del').forEach(b => b.onclick = () => {
+    rows[dist].splice(+b.dataset.i, 1);
+    render();
+  });
+}
+
+function renderMethod(){
+  const el = $('methodBody');
+  if(dist === 100){
+    el.innerHTML = `
+      <dl>
+        <dt>50 m FS</dt><dd>Split 50 m pertama, <b>gun-based</b> — dihitung dari start.</dd>
+        <dt>25 / 35 m FS</dt><dd>Pace 0–25 m dan 0–35 m, <b>gun-based</b>.</dd>
+        <dt>50 m BS</dt><dd>Split 50 m kedua dari <b>Lembar 1</b> SpeedChart — race split, gun-based.</dd>
+        <dt>25 / 35 m BS</dt><dd>Dari <b>Lembar 2</b> — 2nd Lap Push Targets, diukur <b>feet-off wall</b> sampai kepala melewati 75 m dan 85 m. Sesuai kondisi latihan: atlet push off tembok, bukan flip turn kontinu.</dd>
+      </dl>
+      <p class="footnote">Tiap nilai memakai regresi linear dari SpeedChart. Target di luar rentang chart tetap dihitung lewat ekstrapolasi dan ditandai <b>*</b>.</p>`;
+  }else{
+    const strip = Object.keys(M200).map(k => {
+      const m = M200[k];
+      return `<div class="pct"><b>${m.label}</b>${m.p.map(x => (x*100).toFixed(2)+'%').join(' · ')}</div>`;
+    }).join('');
+    el.innerHTML = `
+      <dl>
+        <dt>50 (1) … (4)</dt><dd>Target × proporsi tiap 50 m, diturunkan dari analisis race split elite LCM.</dd>
+        <dt>Front Speed</dt><dd>50 (1) + 50 (2) — target 100 m pertama.</dd>
+        <dt>Middle Speed</dt><dd>50 (2) + 50 (3) — bagian tengah race, paling relevan untuk pace endurance.</dd>
+        <dt>Back Speed</dt><dd>50 (3) + 50 (4) — target 100 m kedua.</dd>
+        <dt>Pace rata-rata</dt><dd>Target ÷ 4 dan target ÷ 2.</dd>
+      </dl>
+      <div class="pct-strip">${strip}</div>
+      <p class="footnote">Model Breast sudah disesuaikan untuk atlet development: front 100 m digeser <b>+2,5–3 detik</b> lebih lambat dari model elite, agar atlet tidak dituntut memecahkan PB 100 m mereka di paruh pertama race.</p>`;
+  }
+}
+
+function add(){
+  const name = $('nameInput').value.trim();
+  const key  = $('eventInput').value;
+  const t    = parseTime($('timeInput').value);
+  const err  = $('errMsg');
+
+  if(!name){ err.textContent = 'Isi nama atlet dulu.'; $('nameInput').focus(); return; }
+  if(t === null){ err.textContent = 'Format waktu belum terbaca. Pakai m:ss.00 seperti 1:05.50, atau detik seperti 65.50.'; $('timeInput').focus(); return; }
+  if(t < 20 || t > 400){ err.textContent = 'Target waktu di luar batas wajar.'; $('timeInput').focus(); return; }
+
+  err.textContent = '';
+  rows[dist].push({ name, key, t });
+  $('nameInput').value = '';
+  $('timeInput').value = '';
+  $('nameInput').focus();
+  render();
+}
+
+function toCSV(){
+  const list = rows[dist];
+  if(!list.length){ $('errMsg').textContent = 'Belum ada data untuk diunduh.'; return; }
+  const head = dist === 100
+    ? ['Atlet','Nomor','Target','50m FS','25m FS','35m FS','50m BS','25m BS','35m BS']
+    : ['Atlet','Nomor','Target','50m (1)','50m (2)','50m (3)','50m (4)','Front 100m','Middle 100m','Back 100m','Avg per 50m','Avg per 100m'];
+
+  const body = list.map(r => {
+    const cfg = (dist === 100 ? M100 : M200)[r.key];
+    if(dist === 100){
+      const c = calc100(r.key, r.t);
+      return [r.name, cfg.label, fmt(r.t), fmt(c.fs50), fmt(c.fs25), fmt(c.fs35), fmt(c.bs50), fmt(c.bs25), fmt(c.bs35)];
+    }
+    const c = calc200(r.key, r.t);
+    return [r.name, cfg.label, fmt(r.t), fmt(c.s1), fmt(c.s2), fmt(c.s3), fmt(c.s4),
+            fmt(c.front), fmt(c.mid), fmt(c.back), fmt(c.avg50), fmt(c.avg100)];
+  });
+
+  const csv = [head, ...body].map(r => r.map(v => `"${v}"`).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = `pace-split-${dist}m.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.mode').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  dist = +b.dataset.dist;
+  $('errMsg').textContent = '';
+  fillEvents(); render(); renderMethod();
+});
+
+$('eventInput').onchange = updateHint;
+$('addBtn').onclick = add;
+$('nameInput').onkeydown = e => { if(e.key === 'Enter') $('timeInput').focus(); };
+$('timeInput').onkeydown = e => { if(e.key === 'Enter') add(); };
+$('csvBtn').onclick = toCSV;
+$('printBtn').onclick = () => window.print();
+$('clearBtn').onclick = () => {
+  if(rows[dist].length && confirm(`Kosongkan ${rows[dist].length} atlet di daftar ${dist} m?`)){
+    rows[dist] = []; render();
+  }
+};
+
+fillEvents(); render(); renderMethod();
+</script>
+</body>
+</html>
