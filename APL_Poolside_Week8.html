@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>APL Poolside — Week 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --avissa:#7F77DD; --avissa-dark:#3C3489; --avissa-tint:#EEEDFE;
+    --tata:#1D9E75; --tata-dark:#085041; --tata-tint:#E1F5EE;
+    --reva:#D85A30; --reva-dark:#712B13; --reva-tint:#FAECE7;
+    --tasha:#D4537E; --tasha-dark:#72243E; --tasha-tint:#FBEAF0;
+    --saniya:#0E8FA8; --saniya-dark:#0A4A57; --saniya-tint:#E2F3F7;
+    --dora:#639922; --dora-dark:#27500A; --dora-tint:#EAF3DE;
+    --rendra:#534AB7; --rendra-dark:#26215C; --rendra-tint:#EEEDFE;
+    --ink:#14161A; --paper:#FAFAF8; --line:#E4E2DC; --muted:#6B6E76;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:100px}
+  .topbar{position:sticky;top:0;z-index:50;background:var(--ink);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+  .topbar .label{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#9A9DA6;font-weight:700}
+  .topbar .title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:17px;margin-top:2px}
+  .save-pill{font-size:10px;font-weight:700;padding:5px 10px;border-radius:20px;background:#2A2D34;color:#9A9DA6;white-space:nowrap}
+  .save-pill.saved{background:#1D3B2A;color:#6FCF97}
+  .save-pill.failed{background:#4A1F1B;color:#F09A8E}
+
+  .athlete-tabs{display:flex;overflow-x:auto;gap:8px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:61px;z-index:40;scrollbar-width:none}
+  .athlete-tabs::-webkit-scrollbar{display:none}
+  .a-tab{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted);border:1.5px solid var(--line);white-space:nowrap;cursor:pointer;flex:none}
+  .a-tab.active{background:var(--dot);color:#fff;border-color:transparent}
+  .a-tab .dot{width:8px;height:8px;border-radius:50%;background:var(--dot)}
+  .a-tab.active .dot{background:rgba(255,255,255,.5)}
+  .a-tab .ms{font-size:9px;opacity:.75;font-weight:800}
+  .a-tab .check{font-size:11px;opacity:.8}
+  .a-tab .saved-mark{font-size:11px;font-weight:800;color:#2E9E63;margin-left:2px}
+
+  main{padding:0 16px}
+  .section-head{padding:20px 0 8px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .section-head h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:17px;color:var(--dot-dark)}
+  .section-head .sub{font-size:12px;color:var(--muted);font-weight:600}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .card-lbl{font-size:12.5px;font-weight:800;margin-bottom:2px}
+  .card-sub{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px}
+
+  .ms-selector{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 2px}
+  .ms-btn{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--muted)}
+  .ms-btn.active{background:var(--dot);color:#fff;border-color:transparent}
+
+  .rep-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #f0eee8}
+  .rep-row:last-child{border-bottom:none}
+  .rep-num{width:32px;height:28px;border-radius:8px;background:var(--dot-tint);color:var(--dot-dark);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;flex:none;margin-top:2px}
+  .rep-fields{display:flex;gap:8px;flex-wrap:wrap}
+  .field{flex:1;min-width:82px}
+  .field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+  .field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;text-align:center;background:var(--paper)}
+  .field input:focus{outline:none;border-color:var(--dot);background:#fff}
+  .field.time input{color:var(--dot-dark)}
+  .field.split input{background:#fff;border-color:var(--dot-tint)}
+  .rep-note{margin-top:8px}
+  .rep-note input{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;background:var(--paper)}
+  .rep-note input:focus{outline:none;border-color:var(--dot);background:#fff}
+  .rep-note input::placeholder{color:#A9ABB2;font-size:11.5px}
+
+  .seg-readout{margin-top:10px;background:#f9f8f4;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+  .seg-title{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+  .seg-grid{display:flex;gap:6px;flex-wrap:wrap}
+  .seg-item{flex:1;min-width:66px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 4px}
+  .seg-item .sn{font-size:9.5px;font-weight:700;color:var(--muted)}
+  .seg-item .sv{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--dot-dark);margin-top:2px}
+  .seg-item .sp{font-size:9px;color:var(--muted);margin-top:1px}
+  .seg-item.fastest{border-color:#4ADE80;background:#F2FBF4}
+  .seg-item.slowest{border-color:#F87171;background:#FEF6F5}
+  .seg-empty{font-size:11.5px;color:var(--muted);font-style:italic}
+
+  .summary-box{background:var(--dot-tint);border-radius:12px;padding:12px 14px;margin-top:10px}
+  .summary-box .st{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dot-dark);margin-bottom:6px}
+  .summary-row{display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0}
+  .summary-row .v{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--dot-dark)}
+
+  .rate-block{padding:12px 0;border-bottom:1px solid #f0eee8}
+  .rate-block:last-child{border-bottom:none}
+  .rate-block-title{font-size:12px;font-weight:800;margin-bottom:10px}
+  .rate-param{display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:8px;flex-wrap:wrap}
+  .rate-param-label{font-size:12.5px;font-weight:600;color:#444;flex:1;min-width:130px}
+  .rate5{display:flex;gap:4px;flex:none}
+  .rate5 button{width:38px;height:34px;border:1.5px solid var(--line);background:#fff;border-radius:8px;font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--muted);transition:all .12s}
+  .rate5 button.r1{background:#FEE2E2;border-color:#F87171;color:#B91C1C}
+  .rate5 button.r2{background:#FFEDD5;border-color:#FB923C;color:#9A3412}
+  .rate5 button.r3{background:#FEF3C7;border-color:#FBBF24;color:#92400E}
+  .rate5 button.r4{background:#DCFCE7;border-color:#4ADE80;color:#166534}
+  .rate5 button.r5{background:#D1FAE5;border-color:#10B981;color:#065F46}
+
+  .criteria-toggle{font-size:11px;font-weight:700;color:var(--dot-dark);cursor:pointer;text-decoration:underline;margin-bottom:8px;display:inline-block}
+  .criteria-panel{display:none;background:#f9f8f4;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;font-size:11.5px;line-height:1.5}
+  .criteria-panel.open{display:block}
+  .criteria-panel h4{font-size:11.5px;font-weight:800;margin:10px 0 4px;color:var(--ink)}
+  .criteria-panel h4:first-child{margin-top:0}
+  .criteria-panel .cr{display:flex;gap:6px;padding:2px 0}
+  .criteria-panel .cn{font-family:'JetBrains Mono',monospace;font-weight:700;min-width:14px}
+
+  .note-box textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;min-height:60px;resize:vertical;background:var(--paper)}
+  .note-box textarea:focus{outline:none;border-color:var(--dot);background:#fff}
+  .note-lbl{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+
+  footer{position:fixed;bottom:0;left:0;right:0;display:flex;gap:8px;padding:12px 16px;background:#fff;border-top:1px solid var(--line);z-index:50}
+  .btn-reset{flex:0 0 auto;padding:13px 14px;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid #E4E2DC;background:#fff;color:#B91C1C}
+  .btn-export{flex:1;padding:13px;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:none;background:var(--dot);color:#fff}
+  .btn-md{flex:1;padding:13px;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--dot);background:#fff;color:var(--dot)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="label">APL Sprint Lab · Poolside</div>
+    <div class="title">Week 8 — Race Test 50m</div>
+  </div>
+  <div class="save-pill" id="savePill">belum disimpan</div>
+</div>
+
+<div class="athlete-tabs" id="athleteTabs"></div>
+<main id="mainContent"></main>
+
+<footer>
+  <button class="btn-reset" onclick="resetAthlete()">Reset</button>
+  <button class="btn-export" onclick="exportData()">Export TXT</button>
+  <button class="btn-md" onclick="exportMD()">Export MD</button>
+</footer>
+
+<script>
+const ATHLETES = [
+  { key:"avissa", name:"Avissa", ms:"breast" },
+  { key:"tata",   name:"Tata",   ms:"fly" },
+  { key:"reva",   name:"Reva",   ms:"fly" },
+  { key:"tasha",  name:"Tasha",  ms:"breast" },
+  { key:"saniya", name:"Saniya", ms:"back" },
+  { key:"dora",   name:"Dora",   ms:"fly" },
+  { key:"rendra", name:"Rendra", ms:"free" },
+];
+const MS_LABEL = { free:"Freestyle", fly:"Butterfly", back:"Backstroke", breast:"Breaststroke" };
+const MS_OPTIONS = [["free","Freestyle"],["fly","Butterfly"],["back","Backstroke"],["breast","Breaststroke"]];
+
+// segmen split: [label, jarak meter, key awal, key akhir]
+const SEGMENTS = [
+  ["0-15m", 15, null, "s15"],
+  ["15-25m", 10, "s15", "s25"],
+  ["25-35m", 10, "s25", "s35"],
+  ["35-50m", 15, "s35", "s50"],
+];
+
+const CRIT_CONTRAST = [
+  ["release", "Kualitas Setelah Release"],
+  ["intensi", "Intensi Max Effort"],
+  ["overspeed", "Kontrol saat Overspeed"],
+];
+const STD_CONTRAST = {
+  release: ["Tidak ada perubahan, sama seperti biasa","Sedikit terasa lalu langsung hilang","Terasa lebih ringan di beberapa stroke awal","Jelas lebih cepat, terbawa sampai pertengahan","Sangat terasa, kecepatan terbawa penuh"],
+  intensi: ["Jelas sub-max, seperti pemanasan","Effort naik bertahap, baru penuh di akhir","Cukup, tapi masih ada yang disimpan","Effort penuh hampir sejak awal","Max effort sejak stroke pertama"],
+  overspeed: ["Teknik pecah total, cuma bertahan","Banyak bagian lepas, rate tidak terkontrol","Cukup terkendali, sesekali lepas","Terkendali baik, bentuk terjaga","Terkendali penuh, bentuk rapi di kecepatan tinggi"],
+};
+
+const STORE_KEY = "apl_week8_data_v1";
+
+function loadStore(){ try{ const r=localStorage.getItem(STORE_KEY); return r?JSON.parse(r):{}; }catch(e){ return {}; } }
+function writeStore(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(store)); return true; }catch(e){ setSavePill("gagal menyimpan",false); return false; } }
+function setSavePill(t,ok){ const p=document.getElementById('savePill'); if(!p)return; p.textContent=t; p.classList.toggle('saved',!!ok); p.classList.remove('failed'); }
+
+let saveTimers={};
+function autosave(key){
+  setSavePill("menyimpan...",false);
+  clearTimeout(saveTimers[key]);
+  saveTimers[key]=setTimeout(()=>{
+    const d=ensureAthlete(key);
+    d.savedAt=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    if(writeStore()){
+      const who=(ATHLETES.find(x=>x.key===key)||{}).name||key;
+      setSavePill(`${who} tersimpan ${d.savedAt}`,true);
+      renderTabs();
+    }
+  },400);
+}
+function flushSave(key){
+  if(key&&saveTimers[key]){ clearTimeout(saveTimers[key]);
+    const d=ensureAthlete(key);
+    d.savedAt=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  }
+  writeStore();
+}
+
+function emptyRate(crits){ const o={}; crits.forEach(([k])=>o[k]=null); return o; }
+function emptyAthleteData(defMs){
+  return {
+    mainStroke: defMs||"free",
+    warmupNote: "",
+    contrast: [1,2,3].map(n=>({ set:n, t15:null, note:"" })),
+    rContrast: emptyRate(CRIT_CONTRAST),
+    noteContrast: "",
+    test: [1,2,3].map(n=>({ rep:n, s15:null, s25:null, s35:null, s50:null, uw:null, sc:null, breath:"", note:"" })),
+    noteTest: "",
+    coachNote: "",
+    savedAt: "",
+  };
+}
+function normalizeAthlete(raw,defMs){
+  const b=emptyAthleteData(defMs);
+  if(!raw||typeof raw!=='object') return b;
+  if(raw.mainStroke&&MS_LABEL[raw.mainStroke]) b.mainStroke=raw.mainStroke;
+  if(typeof raw.warmupNote==='string') b.warmupNote=raw.warmupNote;
+  if(Array.isArray(raw.contrast)) for(let i=0;i<3;i++){
+    const r=raw.contrast[i]; if(!r) continue;
+    b.contrast[i].t15=r.t15??null; b.contrast[i].note=r.note||"";
+  }
+  if(raw.rContrast) CRIT_CONTRAST.forEach(([k])=>{ if(raw.rContrast[k]!==undefined) b.rContrast[k]=raw.rContrast[k]; });
+  if(typeof raw.noteContrast==='string') b.noteContrast=raw.noteContrast;
+  if(Array.isArray(raw.test)) for(let i=0;i<3;i++){
+    const r=raw.test[i]; if(!r) continue;
+    ['s15','s25','s35','s50','uw','sc'].forEach(k=>{ b.test[i][k]=r[k]??null; });
+    b.test[i].breath=r.breath||""; b.test[i].note=r.note||"";
+  }
+  if(typeof raw.noteTest==='string') b.noteTest=raw.noteTest;
+  if(typeof raw.coachNote==='string') b.coachNote=raw.coachNote;
+  if(typeof raw.savedAt==='string') b.savedAt=raw.savedAt;
+  return b;
+}
+
+let store=loadStore();
+let activeKey=ATHLETES[0].key;
+ATHLETES.forEach(a=>{ store[a.key]=normalizeAthlete(store[a.key],a.ms); });
+function ensureAthlete(k){
+  if(!store[k]){ const a=ATHLETES.find(x=>x.key===k); store[k]=emptyAthleteData(a?a.ms:"free"); }
+  return store[k];
+}
+
+function num(v){ const n=parseFloat(v); return isNaN(n)?null:n; }
+
+// hitung segmen dari split kumulatif
+function segmentsOf(rep){
+  return SEGMENTS.map(([lab,dist,from,to])=>{
+    const a=from?num(rep[from]):0;
+    const b=num(rep[to]);
+    if(b===null||(from&&a===null)) return {lab,dist,t:null,v:null};
+    const t=b-a;
+    return {lab,dist,t:t>0?t:null,v:t>0?dist/t:null};
+  });
+}
+
+function renderTabs(){
+  const wrap=document.getElementById('athleteTabs');
+  wrap.innerHTML='';
+  ATHLETES.forEach(a=>{
+    const d=ensureAthlete(a.key);
+    const filled=d.test.filter(r=>r.s50!==null&&r.s50!=="").length;
+    const tab=document.createElement('div');
+    tab.className='a-tab'+(a.key===activeKey?' active':'');
+    tab.style.setProperty('--dot',`var(--${a.key})`);
+    tab.onclick=()=>{ flushSave(activeKey); activeKey=a.key; render(); };
+    const mark=d.savedAt?`<span class="saved-mark">✓</span>`:'';
+    tab.innerHTML=`<span class="dot"></span>${a.name}<span class="ms">${d.mainStroke.toUpperCase()}</span>${filled>0?`<span class="check">${filled}/3</span>`:''}${mark}`;
+    wrap.appendChild(tab);
+  });
+}
+
+function fieldUpdate(key,path,value){
+  const d=ensureAthlete(key); const ks=path.split('.');
+  let o=d;
+  for(let i=0;i<ks.length-1;i++){ const k=isNaN(ks[i])?ks[i]:parseInt(ks[i]); o=o[k]; }
+  const last=ks[ks.length-1];
+  o[isNaN(last)?last:parseInt(last)]=value;
+  autosave(key);
+}
+// update split + refresh readout tanpa render ulang seluruh halaman
+function splitUpdate(key,repIdx,field,value){
+  fieldUpdate(key,`test.${repIdx}.${field}`,value);
+  refreshSegments(key,repIdx);
+  refreshSummary(key);
+}
+function tapUpdate(key,path,value){ fieldUpdate(key,path,value); render(); }
+
+function segHTML(rep){
+  const segs=segmentsOf(rep);
+  const done=segs.filter(s=>s.v!==null);
+  if(!done.length) return `<div class="seg-empty">Isi split untuk melihat waktu per segmen</div>`;
+  const vs=done.map(s=>s.v);
+  const fast=Math.max(...vs), slow=Math.min(...vs);
+  let h=`<div class="seg-grid">`;
+  segs.forEach(s=>{
+    let cls='';
+    if(s.v!==null&&done.length>1){ if(s.v===fast) cls=' fastest'; else if(s.v===slow) cls=' slowest'; }
+    h+=`<div class="seg-item${cls}"><div class="sn">${s.lab}</div>
+      <div class="sv">${s.t!==null?s.t.toFixed(2)+'s':'—'}</div>
+      <div class="sp">${s.v!==null?s.v.toFixed(2)+' m/s':''}</div></div>`;
+  });
+  return h+`</div>`;
+}
+function refreshSegments(key,repIdx){
+  const el=document.getElementById(`seg-${key}-${repIdx}`);
+  if(el) el.innerHTML=segHTML(ensureAthlete(key).test[repIdx]);
+}
+function summaryHTML(d){
+  const t50=d.test.map(r=>num(r.s50)).filter(v=>v!==null);
+  if(!t50.length) return `<div class="seg-empty">Isi waktu 50m untuk melihat ringkasan</div>`;
+  const best=Math.min(...t50), avg=t50.reduce((a,b)=>a+b,0)/t50.length;
+  const spread=t50.length>1?Math.max(...t50)-best:null;
+  let h=`<div class="summary-row"><span>50m terbaik</span><span class="v">${best.toFixed(2)}s</span></div>`;
+  h+=`<div class="summary-row"><span>Rata-rata (${t50.length} rep)</span><span class="v">${avg.toFixed(2)}s</span></div>`;
+  if(spread!==null) h+=`<div class="summary-row"><span>Rentang tercepat-terlambat</span><span class="v">${spread.toFixed(2)}s</span></div>`;
+  return h;
+}
+function refreshSummary(key){
+  const el=document.getElementById(`sum-${key}`);
+  if(el) el.innerHTML=summaryHTML(ensureAthlete(key));
+}
+
+let openPanel={cc:false};
+function rateRow(aKey,path,cur,label){
+  let h=`<div class="rate-param"><div class="rate-param-label">${label}</div><div class="rate5">`;
+  for(let n=1;n<=5;n++) h+=`<button class="${cur===n?'r'+n:''}" onclick="tapUpdate('${aKey}','${path}',${cur===n?'null':n})">${n}</button>`;
+  return h+`</div></div>`;
+}
+
+function render(){
+  renderTabs();
+  const a=ATHLETES.find(x=>x.key===activeKey);
+  const d=ensureAthlete(activeKey);
+  const main=document.getElementById('mainContent');
+  document.documentElement.style.setProperty('--dot',`var(--${a.key})`);
+  main.style.setProperty('--dot',`var(--${a.key})`);
+  main.style.setProperty('--dot-dark',`var(--${a.key}-dark)`);
+  main.style.setProperty('--dot-tint',`var(--${a.key}-tint)`);
+
+  const ms=d.mainStroke;
+  const isBreast=ms==='breast';
+  const msLabel=MS_LABEL[ms];
+  const uwLabel=isBreast?'Pullout (m)':'UW Kick';
+  let h='';
+
+  // ---- Main stroke ----
+  h+=`<div class="section-head"><h2>Main Stroke</h2><span class="sub">gaya yang dipakai di test set</span></div>`;
+  h+=`<div class="ms-selector">`;
+  MS_OPTIONS.forEach(([k,lab])=>{
+    h+=`<button class="ms-btn${ms===k?' active':''}" onclick="tapUpdate('${a.key}','mainStroke','${k}')">${lab}</button>`;
+  });
+  h+=`</div>`;
+
+  // ---- 1. WARM UP ----
+  h+=`<div class="section-head"><h2>1. Warm Up</h2><span class="sub">200 IM · 200 Pull · 4x50 · 8x50 drill</span></div>`;
+  h+=`<div class="card note-box">
+    <label class="note-lbl">Catatan warm up (opsional)</label>
+    <textarea placeholder="cth: KoB fly masih pendek, streamline kick belum konsisten" oninput="fieldUpdate('${a.key}','warmupNote',this.value)">${d.warmupNote||''}</textarea>
+  </div>`;
+
+  // ---- 2. CONTRAST ----
+  h+=`<div class="section-head"><h2>2. Contrast Set</h2><span class="sub">3 set · parachute → 15m FAST → 20m overspeed</span></div>`;
+  h+=`<div class="card"><div class="card-lbl">Waktu 15m FAST from push</div>
+    <div class="card-sub">setelah release parachute</div>`;
+  d.contrast.forEach((r,i)=>{
+    h+=`<div class="rep-row">
+      <div class="rep-num">S${r.set}</div>
+      <div style="flex:1">
+        <div class="rep-fields">
+          <div class="field time"><label>Waktu 15m</label>
+            <input type="number" step="0.01" inputmode="decimal" placeholder="0.00" value="${r.t15??''}"
+              oninput="fieldUpdate('${a.key}','contrast.${i}.t15',this.value)"></div>
+        </div>
+        <div class="rep-note"><input type="text" placeholder="catatan set ini — cth: overspeed terkendali, rate naik"
+          value="${(r.note||'').replace(/"/g,'&quot;')}" oninput="fieldUpdate('${a.key}','contrast.${i}.note',this.value)"></div>
+      </div></div>`;
+  });
+  h+=`</div>`;
+
+  h+=`<div class="card"><div class="card-lbl">Penilaian kualitas contrast</div>
+    <div class="card-sub">dinilai sekali untuk keseluruhan blok</div>
+    <span class="criteria-toggle" onclick="openPanel.cc=!openPanel.cc;render();">${openPanel.cc?'▼ Tutup':'▶ Lihat'} standar penilaian 1-5</span>
+    <div class="criteria-panel${openPanel.cc?' open':''}">`;
+  CRIT_CONTRAST.forEach(([k,lab])=>{
+    h+=`<h4>${lab}</h4>`;
+    STD_CONTRAST[k].forEach((t,i)=>{ h+=`<div class="cr"><span class="cn">${i+1}</span> ${t}</div>`; });
+  });
+  h+=`</div><div class="rate-block">`;
+  CRIT_CONTRAST.forEach(([k,lab])=>{ h+=rateRow(a.key,`rContrast.${k}`,d.rContrast[k],lab); });
+  h+=`</div>
+    <div class="note-box" style="margin-top:12px">
+      <label class="note-lbl">Catatan contrast set</label>
+      <textarea placeholder="catatan pengamatan contrast set" oninput="fieldUpdate('${a.key}','noteContrast',this.value)">${d.noteContrast||''}</textarea>
+    </div></div>`;
+
+  // ---- 3. TEST SET ----
+  h+=`<div class="section-head"><h2>3. Test Set 50m MAX</h2><span class="sub">3 rep · ${msLabel} · split 15/25/35/50</span></div>`;
+  d.test.forEach((r,i)=>{
+    h+=`<div class="card"><div class="card-lbl">Rep ${r.rep}</div>
+      <div class="card-sub">isi split kumulatif dari start</div>
+      <div class="rep-fields">
+        <div class="field split"><label>15m</label>
+          <input type="number" step="0.01" inputmode="decimal" placeholder="0.00" value="${r.s15??''}"
+            oninput="splitUpdate('${a.key}',${i},'s15',this.value)"></div>
+        <div class="field split"><label>25m</label>
+          <input type="number" step="0.01" inputmode="decimal" placeholder="0.00" value="${r.s25??''}"
+            oninput="splitUpdate('${a.key}',${i},'s25',this.value)"></div>
+        <div class="field split"><label>35m</label>
+          <input type="number" step="0.01" inputmode="decimal" placeholder="0.00" value="${r.s35??''}"
+            oninput="splitUpdate('${a.key}',${i},'s35',this.value)"></div>
+        <div class="field time"><label>50m</label>
+          <input type="number" step="0.01" inputmode="decimal" placeholder="0.00" value="${r.s50??''}"
+            oninput="splitUpdate('${a.key}',${i},'s50',this.value)"></div>
+      </div>
+      <div class="seg-readout">
+        <div class="seg-title">Waktu &amp; kecepatan per segmen</div>
+        <div id="seg-${a.key}-${i}">${segHTML(r)}</div>
+      </div>
+      <div class="rep-fields" style="margin-top:10px">
+        <div class="field"><label>${uwLabel}</label>
+          <input type="number" step="${isBreast?'0.5':'1'}" inputmode="${isBreast?'decimal':'numeric'}" placeholder="0" value="${r.uw??''}"
+            oninput="fieldUpdate('${a.key}','test.${i}.uw',this.value)"></div>
+        <div class="field"><label>Stroke Count 50m</label>
+          <input type="number" step="1" inputmode="numeric" placeholder="0" value="${r.sc??''}"
+            oninput="fieldUpdate('${a.key}','test.${i}.sc',this.value)"></div>
+      </div>
+      <div class="rep-note"><input type="text" placeholder="strategi nafas — cth: no breath 15m, lalu tiap 2 stroke"
+        value="${(r.breath||'').replace(/"/g,'&quot;')}" oninput="fieldUpdate('${a.key}','test.${i}.breath',this.value)"></div>
+      <div class="rep-note"><input type="text" placeholder="catatan rep ini — cth: breakout terlambat, rate jatuh di 35m"
+        value="${(r.note||'').replace(/"/g,'&quot;')}" oninput="fieldUpdate('${a.key}','test.${i}.note',this.value)"></div>
+    </div>`;
+  });
+
+  h+=`<div class="card"><div class="card-lbl">Ringkasan test set</div>
+    <div class="summary-box"><div class="st">Hasil 50m</div>
+      <div id="sum-${a.key}">${summaryHTML(d)}</div></div>
+    <div class="note-box" style="margin-top:12px">
+      <label class="note-lbl">Catatan test set</label>
+      <textarea placeholder="catatan pengamatan test set" oninput="fieldUpdate('${a.key}','noteTest',this.value)">${d.noteTest||''}</textarea>
+    </div></div>`;
+
+  // ---- coach note ----
+  h+=`<div class="section-head"><h2>Catatan Coach</h2></div>`;
+  h+=`<div class="card note-box">
+    <textarea placeholder="observasi umum atlet ini hari ini..." oninput="fieldUpdate('${a.key}','coachNote',this.value)">${d.coachNote||''}</textarea>
+  </div>`;
+
+  main.innerHTML=h;
+}
+
+function resetAthlete(){
+  const who=ATHLETES.find(x=>x.key===activeKey).name;
+  if(!confirm(`Reset semua data ${who} untuk Week 8?`)) return;
+  clearTimeout(saveTimers[activeKey]);
+  store[activeKey]=emptyAthleteData(ATHLETES.find(x=>x.key===activeKey).ms);
+  writeStore(); setSavePill(`${who} direset`,false); render();
+}
+
+function exportData(){
+  const L=[];
+  L.push("APL SPRINT LAB — WEEK 8 DATA EXPORT");
+  L.push("Race Test 50m — "+new Date().toLocaleDateString('id-ID'));
+  L.push("=".repeat(52));
+  ATHLETES.forEach(a=>{
+    const d=ensureAthlete(a.key);
+    const ms=d.mainStroke, isBreast=ms==='breast', msLabel=MS_LABEL[ms];
+    L.push(""); L.push(`--- ${a.name.toUpperCase()} [${msLabel}] ---`);
+    if(d.warmupNote) L.push(`Warm up: ${d.warmupNote}`);
+    L.push("");
+    L.push("CONTRAST SET (15m FAST from push):");
+    d.contrast.forEach(r=>{
+      L.push(`  Set ${r.set}: ${r.t15??'-'}s`);
+      if(r.note) L.push(`    Catatan: ${r.note}`);
+    });
+    L.push("  Penilaian (1-5):");
+    CRIT_CONTRAST.forEach(([k,lab])=>L.push(`    ${lab}: ${d.rContrast[k]??'-'}`));
+    if(d.noteContrast) L.push(`  Catatan contrast: ${d.noteContrast}`);
+    L.push("");
+    L.push(`TEST SET 50m MAX (${msLabel}):`);
+    d.test.forEach(r=>{
+      L.push(`  Rep ${r.rep}: 15m ${r.s15??'-'} / 25m ${r.s25??'-'} / 35m ${r.s35??'-'} / 50m ${r.s50??'-'}`);
+      const segs=segmentsOf(r).filter(s=>s.t!==null);
+      if(segs.length) L.push(`    Segmen: ${segs.map(s=>`${s.lab} ${s.t.toFixed(2)}s (${s.v.toFixed(2)} m/s)`).join(' · ')}`);
+      L.push(`    ${isBreast?'Pullout':'UW'} ${r.uw??'-'} / SC ${r.sc??'-'}`);
+      if(r.breath) L.push(`    Nafas: ${r.breath}`);
+      if(r.note) L.push(`    Catatan: ${r.note}`);
+    });
+    const t50=d.test.map(r=>num(r.s50)).filter(v=>v!==null);
+    if(t50.length){
+      const best=Math.min(...t50), avg=t50.reduce((x,y)=>x+y,0)/t50.length;
+      L.push(`  Terbaik: ${best.toFixed(2)}s / Rata-rata: ${avg.toFixed(2)}s` + (t50.length>1?` / Rentang: ${(Math.max(...t50)-best).toFixed(2)}s`:''));
+    }
+    if(d.noteTest) L.push(`  Catatan test set: ${d.noteTest}`);
+    if(d.coachNote){ L.push(""); L.push(`Catatan Coach: ${d.coachNote}`); }
+  });
+  const blob=new Blob([L.join('\n')+"\n\n\n=== RAW JSON ===\n"+JSON.stringify(store,null,2)],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url; link.download=`APL_Week8_Data_${new Date().toISOString().slice(0,10)}.txt`;
+  link.click(); URL.revokeObjectURL(url);
+}
+
+function buildMarkdown(){
+  const date=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  const L=[];
+  L.push(`# APL Sprint Lab — Laporan Sesi Week 8`);
+  L.push(`**Race Test 50m**`);
+  L.push(`**Tanggal:** ${date}  `);
+  L.push(`**Kolam:** UNNES Sampangan · 50m`);
+  L.push(''); L.push('---'); L.push('');
+  ATHLETES.forEach(a=>{
+    const d=ensureAthlete(a.key);
+    const ms=d.mainStroke, isBreast=ms==='breast', msLabel=MS_LABEL[ms];
+    L.push(`## ${a.name}`);
+    L.push(`> **Main Stroke:** ${msLabel}`);
+    L.push('');
+    if(d.warmupNote){ L.push(`### Warm Up`); L.push(''); L.push(d.warmupNote); L.push(''); }
+    L.push('### Contrast Set');
+    L.push('');
+    L.push('| Set | 15m FAST |');
+    L.push('|-----|----------|');
+    d.contrast.forEach(r=>L.push(`| ${r.set} | ${r.t15??'—'}s |`));
+    L.push('');
+    d.contrast.forEach(r=>{ if(r.note) L.push(`_Set ${r.set} — ${r.note}_`); });
+    L.push('');
+    L.push('| Kriteria | Skor |');
+    L.push('|----------|------|');
+    CRIT_CONTRAST.forEach(([k,lab])=>L.push(`| ${lab} | ${d.rContrast[k]??'—'} |`));
+    if(d.noteContrast){ L.push(''); L.push(`_${d.noteContrast}_`); }
+    L.push('');
+    L.push(`### Test Set 50m MAX`);
+    L.push('');
+    L.push(`| Rep | 15m | 25m | 35m | 50m | ${isBreast?'Pullout':'UW'} | SC |`);
+    L.push(`|-----|-----|-----|-----|-----|------|----|`);
+    d.test.forEach(r=>L.push(`| ${r.rep} | ${r.s15??'—'} | ${r.s25??'—'} | ${r.s35??'—'} | ${r.s50??'—'} | ${r.uw??'—'} | ${r.sc??'—'} |`));
+    L.push('');
+    L.push('**Waktu per segmen**');
+    L.push('');
+    L.push('| Rep | 0-15m | 15-25m | 25-35m | 35-50m |');
+    L.push('|-----|-------|--------|--------|--------|');
+    d.test.forEach(r=>{
+      const s=segmentsOf(r);
+      L.push(`| ${r.rep} | ${s.map(x=>x.t!==null?`${x.t.toFixed(2)}s`:'—').join(' | ')} |`);
+    });
+    L.push('');
+    L.push('**Kecepatan per segmen (m/s)**');
+    L.push('');
+    L.push('| Rep | 0-15m | 15-25m | 25-35m | 35-50m |');
+    L.push('|-----|-------|--------|--------|--------|');
+    d.test.forEach(r=>{
+      const s=segmentsOf(r);
+      L.push(`| ${r.rep} | ${s.map(x=>x.v!==null?x.v.toFixed(2):'—').join(' | ')} |`);
+    });
+    L.push('');
+    d.test.forEach(r=>{
+      const bits=[r.breath&&`Nafas: ${r.breath}`, r.note&&`Catatan: ${r.note}`].filter(Boolean);
+      if(bits.length) L.push(`_Rep ${r.rep} — ${bits.join(' · ')}_`);
+    });
+    const t50=d.test.map(r=>num(r.s50)).filter(v=>v!==null);
+    if(t50.length){
+      const best=Math.min(...t50), avg=t50.reduce((x,y)=>x+y,0)/t50.length;
+      L.push('');
+      L.push(`**Terbaik:** ${best.toFixed(2)}s · **Rata-rata:** ${avg.toFixed(2)}s` + (t50.length>1?` · **Rentang:** ${(Math.max(...t50)-best).toFixed(2)}s`:''));
+    }
+    if(d.noteTest){ L.push(''); L.push(`_${d.noteTest}_`); }
+    if(d.coachNote){ L.push(''); L.push('### Catatan Coach'); L.push(''); L.push(`> ${d.coachNote}`); }
+    L.push(''); L.push('---'); L.push('');
+  });
+  L.push(`_Export: ${new Date().toLocaleString('id-ID')} · APL Sprint Lab Week 8_`);
+  return L.join('\n');
+}
+function exportMD(){
+  const blob=new Blob([buildMarkdown()],{type:'text/markdown'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url; link.download=`APL_Week8_${new Date().toISOString().slice(0,10)}.md`;
+  link.click(); URL.revokeObjectURL(url);
+}
+
+window.addEventListener('beforeunload',()=>flushSave(activeKey));
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flushSave(activeKey); });
+(function(){ const s=ATHLETES.map(a=>ensureAthlete(a.key)).filter(d=>d.savedAt);
+  if(s.length) setSavePill(`tersimpan ${s[s.length-1].savedAt}`,true); })();
+
+render();
+</script>
+</body>
+</html>
